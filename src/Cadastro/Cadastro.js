@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
-import Bootstrap from "react-bootstrap";
+import { FormGroup, FormControl } from "react-bootstrap";
 
 class Cadastro extends Component {
     constructor(props) {
@@ -9,33 +9,53 @@ class Cadastro extends Component {
 
         this.state = {
             email: "",
-            password: ""
+            senha: "",
+            data:"",
+            nome: "",
+            cpf: "",
+            tipo: ""
         };
     }
 
-   
+    handleSubmit = (e) => {
+       
+        alert(this.state);
+    }
+
+    handleControl = (e) => {
+        const {value, id} = e.target;
+        this.setState({[id]: value});
+    }
+
     render() {
         return (
-           
+
             <Form onSubmit={this.handleSubmit}>
-                <Form.Group controlId="email" bsSize="large">
-                    <Form.Control
-                        autoFocus
-                        type="email"
-                        value={this.state.email}
-                        onChange={this.handleChange}
-                    />
-                </Form.Group>
-                <Form.Group controlId="password" bsSize="large">
-                    <Form.Control
-                        value={this.state.password}
-                        onChange={this.handleChange}
-                        type="password"
-                    />
-                </Form.Group>
-               
+                <FormGroup>
+                    <FormControl type="email" autoComplete="email" id="email" placeholder="name@example.com" onChange={this.handleControl} onClick={this.handleControl}></FormControl>
+                </FormGroup>
+                <FormGroup>
+                    <FormControl type="password" id="senha" placeholder="senha" onChange={this.handleControl} onClick={this.handleControl}></FormControl>
+                </FormGroup>
+                <FormGroup>
+                    <FormControl type="name" id="nome" placeholder="Nome" onChange={this.handleControl} onClick={this.handleControl}></FormControl>
+                </FormGroup>
+                <FormGroup>
+                    <FormControl type="text" id="cpf" placeholder="CPF" onChange={this.handleControl} onClick={this.handleControl}></FormControl>
+                </FormGroup>
+                <FormGroup>
+                    <FormControl type="date" id="data" placeholder="Data nascimento" onChange={this.handleControl} onClick={this.handleControl}></FormControl>
+                </FormGroup>
+                <FormGroup>
+                   <FormControl as="select" id="tipo" onChange={this.handleControl} onClick={this.handleControl}>
+                        <option>Médico</option>
+                        <option>Cuidador</option>
+                        <option>Paciente</option>
+                    </FormControl>
+                </FormGroup>
+                <Button type="submit"> Cadastar </Button>
             </Form>
-       
+
         );
     }
 }
