@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import { FormGroup, FormControl } from 'react-bootstrap';
-import Firebase from '../Firebase/firebase';
+import app from '../Firebase/appFirebase';
+import { withRouter } from "react-router";
 
 class Cadastro extends Component {
     constructor(props) {
@@ -11,28 +12,30 @@ class Cadastro extends Component {
         this.state = {
             email: '',
             senha: '',
-            data:'',
+            data: '',
             nome: '',
             cpf: '',
             tipo: ''
         };
     }
 
-    handleSubmit = (e) => {
-       const fb = new Firebase();
+    handleSubmit = async event => {
+        event.preventDefault();
+        const { email, senha } = this.state;
 
-       const {email, senha} = this.state;
-       
-       try {
-        fb.doCreateUserWithEmailAndPassword(email, senha);
-       } catch (e) {
-           alert(e);
-       }
+        try {
+            const user = await app
+                .auth()
+                .createUserWithEmailAndPassword(email, senha);
+            this.props.history.push("/");
+        } catch (error) {
+            alert(error);
+        }
     }
 
     handleControl = (e) => {
-        const {value, id} = e.target;
-        this.setState({[id]: value});
+        const { value, id } = e.target;
+        this.setState({ [id]: value });
     }
 
     render() {
@@ -55,7 +58,7 @@ class Cadastro extends Component {
                     <FormControl type="date" id="data" placeholder="Data nascimento" onChange={this.handleControl} onClick={this.handleControl}></FormControl>
                 </FormGroup>
                 <FormGroup>
-                   <FormControl as="select" id="tipo" onChange={this.handleControl} onClick={this.handleControl}>
+                    <FormControl as="select" id="tipo" onChange={this.handleControl} onClick={this.handleControl}>
                         <option>Médico</option>
                         <option>Cuidador</option>
                         <option>Paciente</option>
@@ -68,4 +71,4 @@ class Cadastro extends Component {
     }
 }
 
-export default Cadastro;
+export default withRouter(Cadastro);

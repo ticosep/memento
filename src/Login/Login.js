@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import { withRouter } from "react-router";
+import app from '../Firebase/appFirebase';
 
 class Login extends Component {
     constructor(props) {
@@ -10,13 +11,13 @@ class Login extends Component {
         this.props = props;
 
         this.state = {
-            email: "",
-            password: ""
+            email: '',
+            senha: ''
         };
     }
 
     validateForm( ) {
-        return this.state.email.length > 0 && this.state.password.length > 0;
+        return this.state.email.length > 0 && this.state.senha.length > 0;
     }
 
     handleChange = event => {
@@ -26,8 +27,18 @@ class Login extends Component {
     }
 
    
-    handleSubmit = event => {
+    handleSubmit = async event => {
         event.preventDefault();
+        const { email, senha } = this.state;
+
+        try {
+            const user = await app
+                .auth()
+                .signInWithEmailAndPassword(email, senha);
+            this.props.history.push("/");
+        } catch (error) {
+            alert(email, senha);
+        }
     }
 
     routeChange =  ()  => {
@@ -47,7 +58,7 @@ class Login extends Component {
                             onChange={this.handleChange}
                         />
                     </Form.Group>
-                    <Form.Group controlId="password" >
+                    <Form.Group controlId="senha" >
                         <Form.Control
                             value={this.state.password}
                             onChange={this.handleChange}
