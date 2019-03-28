@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import { withRouter } from "react-router";
-import app from '../Firebase/appFirebase';
+import { app }  from '../Firebase/firebase';
 
 class Login extends Component {
     constructor(props) {
@@ -32,7 +32,7 @@ class Login extends Component {
         const { email, senha } = this.state;
 
         try {
-            const user = await app
+            await app
                 .auth()
                 .signInWithEmailAndPassword(email, senha);
             this.props.history.push("/");

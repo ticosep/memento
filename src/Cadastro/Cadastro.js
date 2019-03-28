@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import { FormGroup, FormControl } from 'react-bootstrap';
-import app from '../Firebase/appFirebase';
+import { app, database } from '../Firebase/firebase';
 import { withRouter } from "react-router";
 
 class Cadastro extends Component {
@@ -21,12 +21,22 @@ class Cadastro extends Component {
 
     handleSubmit = async event => {
         event.preventDefault();
-        const { email, senha } = this.state;
+        const { email, senha, data, nome, cpf, tipo } = this.state;
 
         try {
-            const user = await app
+            await app
                 .auth()
-                .createUserWithEmailAndPassword(email, senha);
+                .createUserWithEmailAndPassword(email, senha)
+                .then(authUser => {
+                    // Create a user in your Firebase realtime database
+                    return database.ref('users/' + authUser.user.uid).set({
+                      nome,
+                      email,
+                      data,
+                      cpf,
+                      tipo
+                });
+            })
             this.props.history.push("/");
         } catch (error) {
             alert(error);
