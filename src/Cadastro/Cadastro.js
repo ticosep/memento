@@ -1,25 +1,33 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
-import { FormGroup, FormControl } from "react-bootstrap";
+import { FormGroup, FormControl } from 'react-bootstrap';
+import Firebase from '../Firebase/firebase';
 
 class Cadastro extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            email: "",
-            senha: "",
-            data:"",
-            nome: "",
-            cpf: "",
-            tipo: ""
+            email: '',
+            senha: '',
+            data:'',
+            nome: '',
+            cpf: '',
+            tipo: ''
         };
     }
 
     handleSubmit = (e) => {
+       const fb = new Firebase();
+
+       const {email, senha} = this.state;
        
-        alert(this.state);
+       try {
+        fb.doCreateUserWithEmailAndPassword(email, senha);
+       } catch (e) {
+           alert(e);
+       }
     }
 
     handleControl = (e) => {
