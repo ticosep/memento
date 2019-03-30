@@ -15,13 +15,14 @@ class Cadastro extends Component {
             data: '',
             nome: '',
             cpf: '',
-            tipo: ''
+            tipo: '',
+            pacientes: []
         };
     }
 
     handleSubmit = async event => {
         event.preventDefault();
-        const { email, senha, data, nome, cpf, tipo } = this.state;
+        const { email, senha, data, nome, cpf, tipo, pacientes } = this.state;
 
         try {
             await app
@@ -34,7 +35,8 @@ class Cadastro extends Component {
                       email,
                       data,
                       cpf,
-                      tipo
+                      tipo,
+                      pacientes
                 });
             })
             this.props.history.push("/");

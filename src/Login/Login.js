@@ -4,9 +4,13 @@ import Button from 'react-bootstrap/Button'
 import { withRouter } from "react-router";
 import { app, database } from '../Firebase/firebase';
 
+import {observer, inject} from "mobx-react";
+
+@inject("store") @observer
 class Login extends Component {
     constructor(props) {
         super(props);
+		console.log("TCL: Login -> constructor -> props", props)
 
         this.props = props;
 
@@ -43,8 +47,11 @@ class Login extends Component {
     }
 
     makeLogin = async uid => {
-        const { history } = this.props;
-
+        const { history, store} = this.props;
+		console.log("TCL: Login -> history", history);
+    
+		console.log("TCL: Login -> store", store);
+	
         await database.ref('users/' + uid)
             .once('value')
             .then(function (snapshot) {
@@ -52,6 +59,7 @@ class Login extends Component {
 
                 return tipo;
             }).then(function (tipo) {
+           
                 history.push('/' + tipo);
             });
 

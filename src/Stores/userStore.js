@@ -1,30 +1,30 @@
-import { observable, action, computed } from 'mobx';
+import { observable, computed } from 'mobx';
 
-class UserStore {
-  @observable users = null;
+class ObservableTodoStore {
+	@observable todos = [];
+    @observable pendingRequests = 0;
 
-  constructor(rootStore) {
-    this.rootStore = rootStore;
-  }
-
-  @action setUsers = users => {
-    this.users = users;
-  };
-
-  @action setUser = (user, uid) => {
-    if (!this.users) {
-      this.users = {};
+	@computed get completedTodosCount() {
+    	return this.todos.filter(
+			todo => todo.completed === true
+		).length;
     }
 
-    this.users[uid] = user;
-  };
+	@computed get report() {
+		if (this.todos.length === 0)
+			return "<none>";
+		return `Next todo: "${this.todos[0].task}". ` +
+			`Progress: ${this.completedTodosCount}/${this.todos.length}`;
+	}
 
-  @computed get userList() {
-    return Object.keys(this.users || {}).map(key => ({
-      ...this.users[key],
-      uid: key,
-    }));
-  }
+	addTodo(task) {
+		this.todos.push({
+			task: task,
+			completed: false,
+			assignee: null
+		});
+	}
 }
 
-export default UserStore;
+
+export default new ObservableTodoStore();
