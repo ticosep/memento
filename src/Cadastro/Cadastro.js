@@ -29,7 +29,7 @@ class Cadastro extends Component {
                 .createUserWithEmailAndPassword(email, senha)
                 .then(authUser => {
                     // Create a user in your Firebase realtime database
-                    return database.ref('users/' + authUser.user.uid).set({
+                    return database.ref('users/' + authUser.user.uid).push({
                       nome,
                       email,
                       data,

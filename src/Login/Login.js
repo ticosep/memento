@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import { withRouter } from "react-router";
-import { app }  from '../Firebase/firebase';
+import { app, database } from '../Firebase/firebase';
 
 class Login extends Component {
     constructor(props) {
@@ -16,7 +16,7 @@ class Login extends Component {
         };
     }
 
-    validateForm( ) {
+    validateForm() {
         return this.state.email.length > 0 && this.state.senha.length > 0;
     }
 
@@ -26,22 +26,38 @@ class Login extends Component {
         });
     }
 
-   
+
     handleSubmit = async event => {
         event.preventDefault();
+
         const { email, senha } = this.state;
 
         try {
             await app
                 .auth()
-                .signInWithEmailAndPassword(email, senha);
-            this.props.history.push("/");
+                .signInWithEmailAndPassword(email, senha)
+                .then(authUser => this.makeLogin(authUser.user.uid));
         } catch (error) {
             alert(email, senha);
         }
     }
 
-    routeChange =  ()  => {
+    makeLogin = async uid => {
+        const { history } = this.props;
+
+        await database.ref('users/' + uid)
+            .once('value')
+            .then(function (snapshot) {
+                const { tipo } = snapshot.val();
+
+                return tipo;
+            }).then(function (tipo) {
+                history.push('/' + tipo);
+            });
+
+    }
+
+    routeChange = () => {
         const { history } = this.props;
         history.push('/cadastro');
     }
@@ -66,14 +82,14 @@ class Login extends Component {
                         />
                     </Form.Group>
                     <Button
-                        
+
                         className="btn btn-primary"
                         disabled={!this.validateForm()}
                         type="submit"
                     >
                         Login
           </Button>
-                    <Button 
+                    <Button
                         className="btn btn-primary"
                         onClick={this.routeChange}>
                         Cadastrar
