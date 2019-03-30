@@ -11,12 +11,11 @@ import CadastroPaciente from './Cadastro/CadastroPaciente';
 import Cadastro from './Cadastro/Cadastro'
 import Login from './Login/Login'
 
-import userStore from "./Stores/userStore";
-
+import rootStore from './Stores/rootStore';
  
 
 const routing = (
-    <Provider store={userStore}>
+    <Provider store={rootStore}>
         <Router>
             <Route exact path="/" component={Login} />
             <Route exact path="/cadastro" component={Cadastro} />

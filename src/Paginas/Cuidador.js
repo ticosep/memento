@@ -1,16 +1,17 @@
 import React, { Component } from "react";
 import Button from 'react-bootstrap/Button'
 import { withRouter } from "react-router";
-import {observer, inject} from "mobx-react";
+import {observer} from "mobx-react";
+import rootStore from '../Stores/rootStore';
 
-@inject("store") @observer
+@observer
 class Cuidador extends Component {
     constructor(props) {
         super(props);
 
         this.props = props;
-        const { store } = props;
-		console.log("TCL: Cuidador -> constructor -> store", store);
+
+        console.log(rootStore.userStore.userTipo);
     }
 
     routeChange = () => {

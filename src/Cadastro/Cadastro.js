@@ -71,9 +71,8 @@ class Cadastro extends Component {
                 </FormGroup>
                 <FormGroup>
                     <FormControl as="select" id="tipo" onChange={this.handleControl} onClick={this.handleControl}>
-                        <option>Médico</option>
+                        <option>Medico</option>
                         <option>Cuidador</option>
-                        <option>Paciente</option>
                     </FormControl>
                 </FormGroup>
                 <Button type="submit"> Cadastar </Button>
