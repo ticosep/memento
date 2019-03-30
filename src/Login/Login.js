@@ -10,7 +10,6 @@ import {observer, inject} from "mobx-react";
 class Login extends Component {
     constructor(props) {
         super(props);
-		console.log("TCL: Login -> constructor -> props", props)
 
         this.props = props;
 
@@ -48,15 +47,14 @@ class Login extends Component {
 
     makeLogin = async uid => {
         const { history, store} = this.props;
-		console.log("TCL: Login -> history", history);
-    
-		console.log("TCL: Login -> store", store);
+
 	
         await database.ref('users/' + uid)
             .once('value')
             .then(function (snapshot) {
                 const { tipo } = snapshot.val();
 
+                store.setUser(snapshot.val());
                 return tipo;
             }).then(function (tipo) {
            
