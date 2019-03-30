@@ -4,6 +4,7 @@ import Button from 'react-bootstrap/Button'
 import { FormGroup, FormControl } from 'react-bootstrap';
 import { app, database } from '../Firebase/firebase';
 import { withRouter } from "react-router";
+import rootStore from '../Stores/rootStore';
 
 class CadastroPaciente extends Component {
     constructor(props) {
@@ -45,7 +46,8 @@ class CadastroPaciente extends Component {
                 .child(key)
                 .set(value)
                 .then(() => {
-                    console.log(user);
+                    const {userStore} = rootStore;
+                    history.push('/' + userStore.userTipo)
                 });
             });
 

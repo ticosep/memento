@@ -58,16 +58,19 @@ class Login extends Component {
                 
                 userStore.setUser(snapshot.val());
 
-                const arrayPacientes =  Object.entries(pacientes);
+                if(pacientes) {
+                    const arrayPacientes =  Object.entries(pacientes);
                 
-                for (const paciente of arrayPacientes) {
-                    const [id] = paciente;
-                    const data = paciente[1];
-
-                    const pacienteObj = Object.assign({id: id}, data);
-                    pacienteStore.addPaciente(pacienteObj);
+                    for (const paciente of arrayPacientes) {
+                        const [id] = paciente;
+                        const data = paciente[1];
+    
+                        const pacienteObj = Object.assign({id: id}, data);
+                        pacienteStore.addPaciente(pacienteObj);
+                    }
+                        
                 }
-                    
+               
                 
                 return tipo;
             }).then(function (tipo) {

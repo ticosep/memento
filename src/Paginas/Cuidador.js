@@ -11,7 +11,6 @@ class Cuidador extends Component {
 
         this.props = props;
 
-        console.log(rootStore.userStore.userTipo);
     }
 
     routeChange = () => {

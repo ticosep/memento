@@ -16,7 +16,7 @@ class Cadastro extends Component {
             nome: '',
             cpf: '',
             tipo: '',
-            pacientes: []
+            pacientes: ''
         };
     }
 
@@ -30,7 +30,7 @@ class Cadastro extends Component {
                 .createUserWithEmailAndPassword(email, senha)
                 .then(authUser => {
                     // Create a user in your Firebase realtime database
-                    return database.ref('users/' + authUser.user.uid).push({
+                    return database.ref('users/' + authUser.user.uid).set({
                       nome,
                       email,
                       data,
