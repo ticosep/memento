@@ -3,7 +3,7 @@ import { withRouter } from "react-router";
 import { observer } from "mobx-react";
 import rootStore from '../Stores/rootStore';
 import { app, database } from '../Firebase/firebase';
-import { Table } from "react-bootstrap";
+import { Table, Button, Container } from "react-bootstrap";
 import LinhaPaciente from "../Tabelas/linhaPaciente";
 
 @observer
@@ -25,7 +25,7 @@ class Cuidador extends Component {
     render() {
        
         return (
-
+            <Container>
             <Table>
                 <thead>
                     <tr>
@@ -42,6 +42,13 @@ class Cuidador extends Component {
                        return <LinhaPaciente key={index} paciente={row}/>
                 })}</tbody>
             </Table>
+            
+                 <Button className="btn btn-primary"   onClick={this.routeChange}>    
+         
+                    Cadastrar paciente
+                </Button>
+            </Container>
+           
 
         );
     }
