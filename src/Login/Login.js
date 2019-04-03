@@ -51,9 +51,11 @@ class Login extends Component {
             .then(function (snapshot) {
                 const { tipo } = snapshot.val();
                 const value = snapshot.val();
+                const userID = {id: uid};
+                const userValues = Object.assign(value, userID);
 
 
-                localStorage.setItem(uid, JSON.stringify(value));
+                localStorage.setItem('user', JSON.stringify(userValues));
 
                 history.push('/' + tipo);
               

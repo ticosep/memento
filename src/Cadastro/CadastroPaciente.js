@@ -45,7 +45,7 @@ class CadastroPaciente extends Component {
                 .child(key)
                 .set(value)
                 .then(() => {
-                   const userValues = localStorage.getItem(user.uid);
+                   const userValues = localStorage.getItem('user');
                    const userValuesObj = JSON.parse(userValues);
 
                    history.push('/' + userValuesObj.tipo);
