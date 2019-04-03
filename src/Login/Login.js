@@ -4,10 +4,6 @@ import Button from 'react-bootstrap/Button'
 import { withRouter } from "react-router";
 import { app, database } from '../Firebase/firebase';
 
-import {observer} from "mobx-react";
-import rootStore from '../Stores/rootStore';
-
-@observer
 class Login extends Component {
     constructor(props) {
         super(props);
@@ -47,35 +43,20 @@ class Login extends Component {
     }
 
     makeLogin = async uid => {
-        const { history} = this.props;
+        const { history } = this.props;
 
 	
         await database.ref('users/' + uid)
             .once('value')
             .then(function (snapshot) {
-                const { tipo, pacientes } = snapshot.val();
-                const {userStore, pacienteStore} = rootStore;
-                
-                userStore.setUser(snapshot.val());
+                const { tipo } = snapshot.val();
+                const value = snapshot.val();
 
-                if(pacientes) {
-                    const arrayPacientes =  Object.entries(pacientes);
-                
-                    for (const paciente of arrayPacientes) {
-                        const [id] = paciente;
-                        const data = paciente[1];
-    
-                        const pacienteObj = Object.assign({id: id}, data);
-                        pacienteStore.addPaciente(pacienteObj);
-                    }
-                        
-                }
-               
-                
-                return tipo;
-            }).then(function (tipo) {
-           
+
+                localStorage.setItem(uid, JSON.stringify(value));
+
                 history.push('/' + tipo);
+              
             });
 
     }
