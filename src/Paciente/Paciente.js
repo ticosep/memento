@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { withRouter } from "react-router";
 import { Table, Button, Container, Modal, FormGroup, FormControl, Form } from "react-bootstrap";
 import linhaLembranca from '../Tabelas/linhaLembranca';
-import { app, database } from '../Firebase/firebase';
+import { storageRef, database } from '../Firebase/firebase';
 
 class Paciente extends Component {
     constructor(props) {
@@ -10,6 +10,9 @@ class Paciente extends Component {
 
         this.state = {
             show: false,
+            data: '',
+            desc: '',
+            file: null,
             lembracas: []
         }
 
@@ -23,7 +26,50 @@ class Paciente extends Component {
         this.setState({ show: true });
     }
 
+    
+    handleSubmit = async event => {
+        event.preventDefault();
+        const { key } = this.props.location.state.paciente;
+        const { desc, data, file } = this.state;
+       
+        try {
+            const lembracas = {
+                customMetadata: {
+                    desc,
+                    data
+                }  
+            }
 
+            await storageRef.child('lembrancas/' + key + '/' + desc).put(file, lembracas).then(() => {
+                storageRef.child('lembrancas/' + key + '/' + desc).updateMetadata(lembracas);
+            });
+
+            const path = await storageRef.child('lembrancas/' + key + '/' + desc).fullPath;
+
+            await database.ref('pacientes/' + key + '/lembracas').push({
+                desc,
+                data,
+                path
+            })
+                
+            
+        } catch (error) {
+            alert(error);
+        }
+    }
+
+    handleControl = (e) => {
+        const { value, id } = e.target;
+        this.setState({ [id]: value });
+    }
+
+    handleFile = (e) => {
+        const file = e.target.files[0];
+
+        if(file) {
+            this.setState({file: file});
+        }
+    }
 
 
     render() {
@@ -66,7 +112,7 @@ class Paciente extends Component {
                             </FormGroup>
 
                             <FormGroup>
-                                <FormControl type="file" id="file" placeholder="Selecione a lembrança" onChange={this.handleControl} onClick={this.handleControl}></FormControl>
+                                <FormControl type="file" id="file" placeholder="Selecione a lembrança" onChange={this.handleFile} onClick={this.handleFile}></FormControl>
                             </FormGroup>
                         </Form>
                     </Modal.Body>
@@ -74,7 +120,7 @@ class Paciente extends Component {
                         <Button variant="secondary" onClick={this.handleClose}>
                             Close
                         </Button>
-                        <Button variant="primary" onClick={this.handleClose}>
+                        <Button type="submit" variant="primary" onClick={this.handleSubmit}>
                             Upload
                         </Button>
                     </Modal.Footer>
@@ -87,13 +133,9 @@ class Paciente extends Component {
 
     componentDidMount() {
         const { key } = this.props.location.state.paciente;
-
-        database.ref('pacientes/' + key)
-            .once('value')
-            .then((snapshot) => {
-                const { lembracas } = snapshot.val();
-
-            });
+     
+       
+       
     }
 }
 
