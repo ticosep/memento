@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { withRouter } from "react-router";
-import { Table, Button, Container, Modal } from "react-bootstrap";
+import { Table, Button, Container, Modal, FormGroup, FormControl, Form } from "react-bootstrap";
 import linhaLembranca from '../Tabelas/linhaLembranca';
 import { app, database } from '../Firebase/firebase';
 
@@ -49,22 +49,34 @@ class Paciente extends Component {
 
                 <Button className="btn btn-primary" onClick={this.handleShow}>
                     Upload de lembraca
-            </Button>
+                </Button>
 
                 <Modal show={this.state.show} onHide={this.handleClose}>
                     <Modal.Header closeButton>
-                        <Modal.Title>Upload de lembraca</Modal.Title>
+                        <Modal.Title>Upload de lembraça</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
+                        <Form onSubmit={this.handleSubmit}>
+                            <FormGroup>
+                                <FormControl type="text" id="desc" placeholder="Decrição da lembraça" onChange={this.handleControl} onClick={this.handleControl}></FormControl>
+                            </FormGroup>
 
+                            <FormGroup>
+                                <FormControl type="date" id="data" placeholder="Data de ocorrencia" onChange={this.handleControl} onClick={this.handleControl}></FormControl>
+                            </FormGroup>
+
+                            <FormGroup>
+                                <FormControl type="file" id="file" placeholder="Selecione a lembrança" onChange={this.handleControl} onClick={this.handleControl}></FormControl>
+                            </FormGroup>
+                        </Form>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={this.handleClose}>
                             Close
-            </Button>
+                        </Button>
                         <Button variant="primary" onClick={this.handleClose}>
                             Upload
-            </Button>
+                        </Button>
                     </Modal.Footer>
                 </Modal>
 
