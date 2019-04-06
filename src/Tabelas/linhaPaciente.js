@@ -12,10 +12,9 @@ class LinhaPaciente extends Component {
     }
 
     routeChange = () => {
-        const { history } = this.props;
+        const { history, paciente } = this.props;
         history.push({pathname: '/paciente',  state: {
-            id: 7,
-            color: 'green'
+            paciente
           }});
     }
 
