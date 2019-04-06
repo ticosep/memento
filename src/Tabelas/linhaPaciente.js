@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Button } from 'react-bootstrap';
+import { withRouter } from "react-router";
 
 class LinhaPaciente extends Component {
     constructor(props) {
@@ -9,6 +10,15 @@ class LinhaPaciente extends Component {
             paciente : props.paciente
         }
     }
+
+    routeChange = () => {
+        const { history } = this.props;
+        history.push({pathname: '/paciente',  state: {
+            id: 7,
+            color: 'green'
+          }});
+    }
+
     render () {
         return (
             <tr>
@@ -17,8 +27,8 @@ class LinhaPaciente extends Component {
                 <td>{this.state.paciente.cpf}</td>
                 <td>{this.state.paciente.data}</td>
                 <td>
-                    <Button>
-                        Upload
+                    <Button className="btn btn-primary"   onClick={this.routeChange}>
+                        Acessar
                     </Button>
                 </td>
                 <td>
@@ -31,4 +41,4 @@ class LinhaPaciente extends Component {
     }
 }
 
-export default LinhaPaciente;
+export default withRouter(LinhaPaciente);

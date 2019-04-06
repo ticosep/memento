@@ -33,7 +33,7 @@ class Cuidador extends Component {
                         <th scope="col">Peso</th>
                         <th scope="col">CPF</th>
                         <th scope="col">Data nascimento</th>
-                        <th scope="col">Upload lembranças</th>
+                        <th scope="col">Acesso ao paciente</th>
                         <th scope="col">Jogar</th>
                     </tr>
                 </thead>
@@ -67,8 +67,12 @@ class Cuidador extends Component {
 
                 for (const paciente of arrayPaci) {
                     const infos = paciente[1];
+                    const key = {
+                        key: paciente[0]
+                    }
 
-                    rows.push(infos);
+                    const mergedPaciente = Object.assign(infos, key);
+                    rows.push(mergedPaciente);
 
                    
                 }
