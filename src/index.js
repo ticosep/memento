@@ -11,6 +11,7 @@ import CadastroPaciente from './Cadastro/CadastroPaciente';
 import Cadastro from './Cadastro/Cadastro'
 import Login from './Login/Login'
 import Paciente from './Paciente/Paciente';
+import Game from './Game';
 
 import rootStore from './Stores/rootStore';
  
@@ -23,6 +24,7 @@ const routing = (
             <Route exact path="/cuidador" component={Cuidador} />
             <Route exact path="/cadastropaciente"  component={CadastroPaciente}/>
             <Route exact path="/paciente"  component={Paciente}/>
+            <Route exact path="/jogar"  component={Game}/>
         </Router>
     </Provider>
 )

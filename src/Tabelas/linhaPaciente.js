@@ -11,11 +11,20 @@ class LinhaPaciente extends Component {
         }
     }
 
-    routeChange = () => {
+    routeChange = (e) => {
+        const { value, id } = e.target;
         const { history, paciente } = this.props;
-        history.push({pathname: '/paciente',  state: {
-            paciente
-          }});
+
+        if(id === 'acessar') {
+            history.push({pathname: '/paciente',  state: {
+                paciente
+              }});
+        }
+
+        if(id === 'jogar') {
+            history.push('/jogar');
+        }
+       
     }
 
     render () {
@@ -26,12 +35,12 @@ class LinhaPaciente extends Component {
                 <td>{this.state.paciente.cpf}</td>
                 <td>{this.state.paciente.data}</td>
                 <td>
-                    <Button className="btn btn-primary"   onClick={this.routeChange}>
+                    <Button id="acessar" className="btn btn-primary"   onClick={this.routeChange}>
                         Acessar
                     </Button>
                 </td>
                 <td>
-                    <Button>
+                    <Button id="jogar" className="btn btn-primary"   onClick={this.routeChange}>
                         Jogar     
                     </Button>
                 </td>
