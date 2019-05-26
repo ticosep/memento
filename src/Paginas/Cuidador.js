@@ -6,7 +6,6 @@ import { app, database } from '../Firebase/firebase';
 import { Table, Button, Container } from "react-bootstrap";
 import LinhaPaciente from "../Tabelas/linhaPaciente";
 
-@observer
 class Cuidador extends Component {
     constructor(props) {
         super(props);
