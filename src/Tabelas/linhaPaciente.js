@@ -12,7 +12,7 @@ class LinhaPaciente extends Component {
     }
 
     routeChange = (e) => {
-        const { value, id } = e.target;
+        const { id } = e.target;
         const { history, paciente } = this.props;
 
         if(id === 'acessar') {

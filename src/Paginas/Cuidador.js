@@ -1,8 +1,7 @@
 import React, { Component } from "react";
 import { withRouter } from "react-router";
-import { observer } from "mobx-react";
-import rootStore from '../Stores/rootStore';
-import { app, database } from '../Firebase/firebase';
+
+import {  database } from '../Firebase/firebase';
 import { Table, Button, Container } from "react-bootstrap";
 import LinhaPaciente from "../Tabelas/linhaPaciente";
 

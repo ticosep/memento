@@ -21,18 +21,18 @@ class LinhaLembranca extends Component {
         let lembracaPreview;
 
         if(lembrancaType === 'img') {
-            lembracaPreview = <img src={lembracaUrl}></img>;
+            lembracaPreview = <img width="100" height="100" src={lembracaUrl} alt="lembrança"></img>;
         }
 
         if(lembrancaType === 'video') {
             lembracaPreview = <Player
-            playsInline
+            playsInline fluid={false} width={100} height={100}
             src={lembracaUrl}
           />;
         }
         return (
             <tr>
-                <td width="80" height="50"> {lembracaPreview}</td>
+                <td> {lembracaPreview}</td>
                 <td>{this.state.paciente.desc}</td>
                 <td>{this.state.paciente.data}</td>
 
@@ -73,6 +73,9 @@ class LinhaLembranca extends Component {
                 case 'storage/unknown':
                     // Unknown error occurred, inspect the server response
                     break;
+
+                default:
+                    console.log(error);
             }
         });
 

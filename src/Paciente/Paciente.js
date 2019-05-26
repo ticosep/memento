@@ -4,7 +4,12 @@ import { Table, Button, Container, Modal, FormGroup, FormControl, Form } from "r
 import { storageRef, database } from '../Firebase/firebase';
 import LinhaLembranca from '../Tabelas/linhaLembranca';
 import Loader from 'react-loader-spinner';
+import rootStore from '../Stores/rootStore';
+import { observer} from 'mobx-react';
 
+const store = rootStore;
+
+@observer
 class Paciente extends Component {
     constructor(props) {
         super(props);
@@ -50,7 +55,6 @@ class Paciente extends Component {
                 storageRef.child('lembrancas/' + key + '/' + desc).updateMetadata(lembracas);
             });
 
-            const fileExtension = this.getFileExtension(file.name);
             const path = await storageRef.child('lembrancas/' + key + '/' + desc).fullPath;
 
             await database.ref('pacientes/' + key + '/lembracas').push({
@@ -59,10 +63,18 @@ class Paciente extends Component {
                 path
             })
 
+            store.lembrancaStore.addlembranca({
+                desc,
+                data,
+                path
+            });
+
             this.setState({
                 uploading: false,
                 show: false
             })
+
+            
 
 
         } catch (error) {
@@ -70,9 +82,7 @@ class Paciente extends Component {
         }
     }
 
-    getFileExtension = (str) => {
-        return str.split('.').pop();
-    }
+   
 
     handleControl = (e) => {
         const { value, id } = e.target;
@@ -92,6 +102,8 @@ class Paciente extends Component {
         const { nome } = this.props.location.state.paciente;
         let closebutton;
         let uploadbutton;
+
+       
 
         if (this.state.uploading) {
             closebutton = <Loader
@@ -123,8 +135,11 @@ class Paciente extends Component {
                         </tr>
                     </thead>
                     <tbody>{
-                        this.state.lembracas.map((row, index) => {
-                            return <LinhaLembranca key={index} lembraca={row} />
+                         store.lembrancaStore.lembrancaList.map((row, index) => {
+                            const {desc, path, data} = row;
+                            const objectRow = Object.assign({}, {desc, path, data});
+                            return <LinhaLembranca key={index} lembraca={objectRow} />
+                            
                         })}</tbody>
 
                 </Table>
@@ -179,6 +194,7 @@ class Paciente extends Component {
                         const infos = lembraca[1];
 
                         lembrancas.push(infos);
+                        store.lembrancaStore.addlembranca(infos);
 
                     }
 

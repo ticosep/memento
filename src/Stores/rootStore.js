@@ -1,10 +1,10 @@
 import UserStore from './userStore';
-import PacienteStore from './pacienteStore';
+import LembracaStore from './lembrancaStore';
 
 class RootStore {
   constructor() {
     this.userStore = new UserStore(this);
-    this.pacienteStore = new PacienteStore(this);
+    this.lembrancaStore = new LembracaStore(this);
   }
 }
 
