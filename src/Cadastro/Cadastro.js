@@ -23,10 +23,11 @@ class Cadastro extends Component {
     handleSubmit = async event => {
         event.preventDefault();
         const { email, senha, data, nome, cpf, tipo, pacientes } = this.state;
+        
+        //Try to push data to the firebase after it creates a user by the default google createUser's
 
         try {
-            await app
-                .auth()
+            app.auth()
                 .createUserWithEmailAndPassword(email, senha)
                 .then(authUser => {
                     // Create a user in your Firebase realtime database
@@ -46,6 +47,7 @@ class Cadastro extends Component {
     }
 
     handleControl = (e) => {
+        // For each element in the from we have a id that matches the state, so we onde uses the id string to set the value
         const { value, id } = e.target;
         this.setState({ [id]: value });
     }

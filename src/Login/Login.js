@@ -32,9 +32,9 @@ class Login extends Component {
 
         const { email, senha } = this.state;
 
+        // Try to login with the google default sing in
         try {
-            await app
-                .auth()
+           app.auth()
                 .signInWithEmailAndPassword(email, senha)
                 .then(authUser => this.makeLogin(authUser.user.uid));
         } catch (error) {
@@ -45,10 +45,10 @@ class Login extends Component {
     makeLogin = async uid => {
         const { history } = this.props;
 
-	
-        await database.ref('users/' + uid)
+        // Set the user to the localStore for future usage, and do not lost the reference case its become offline
+        database.ref('users/' + uid)
             .once('value')
-            .then(function (snapshot) {
+            .then((snapshot) => {
                 const { tipo } = snapshot.val();
                 const value = snapshot.val();
                 const userID = {id: uid};

@@ -14,13 +14,15 @@ class Game extends Component {
 
   }
 
-
+  // Handle called after a message from the iframe (game)
   handleFrameTasks = (e) => {
     const { fnName } = e.data;
     const {ready, gameSpecs} = this.state;
 
+    // Here we need to check if the fnName is that one, it secure that the game is allreadt loaded and the data for it is done
     if (fnName === 'returnJson' && ready) {
 
+      // Simulate a message type for the Rex_FrameMessage addon in the construct game
       const CMD_FNRTN = "Rex_FrameMessage.Return";
       const data = {
         "type": CMD_FNRTN,
@@ -58,6 +60,7 @@ class Game extends Component {
       </div>);
   }
 
+  // After the component update, load all the data for the game we set a listner for the ifram messages
   componentDidUpdate () {
     this.ifr.onload = () => {
       window.addEventListener("message", this.handleFrameTasks);

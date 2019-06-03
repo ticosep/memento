@@ -23,6 +23,7 @@ class CadastroPaciente extends Component {
         const { history } = this.props;
 
         try {
+            // Get the current user id, then set the new "paciente" to its object in the firebase
             const user = app.auth().currentUser
 
             database.ref('users/' + user.uid + '/pacientes')

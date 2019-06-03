@@ -4,6 +4,7 @@ import { withRouter } from "react-router";
 import { Player } from 'video-react';
 import 'video-react/dist/video-react.css'; // import css
 
+// A line in the paciente table, this line show the content and information form the uploaded file
 class LinhaLembranca extends Component {
     constructor(props) {
         super(props);
@@ -81,6 +82,7 @@ class LinhaLembranca extends Component {
 
         lembrancaRef.getMetadata().then((metadata) => {
             const {contentType} =  metadata;
+            // Regex to find what is the content to be showed
             const regex = /image|video?/gi;
             const [match] = contentType.match(regex)
 

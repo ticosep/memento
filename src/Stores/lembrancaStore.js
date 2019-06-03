@@ -1,5 +1,6 @@
 import { action, computed, observable } from 'mobx';
 
+// Store that will have all the lembracas from a given paciente
 class LembracaStore{
 
     @observable lembrancaList = [];

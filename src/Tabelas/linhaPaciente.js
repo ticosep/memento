@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Button } from 'react-bootstrap';
 import { withRouter } from "react-router";
 
+// A simple line with the info about the paciente that is under the care of the user
 class LinhaPaciente extends Component {
     constructor(props) {
         super(props);

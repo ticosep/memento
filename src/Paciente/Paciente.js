@@ -9,6 +9,7 @@ import { observer} from 'mobx-react';
 
 const store = rootStore;
 
+// Set a store to the pacientes, it will be needed for fast and live att of the current list of files (lembrancas)
 @observer
 class Paciente extends Component {
     constructor(props) {
@@ -25,6 +26,7 @@ class Paciente extends Component {
 
     }
 
+    // Handlers for the Modal of upload
     handleClose = () => {
         this.setState({ show: false });
     }
@@ -47,6 +49,7 @@ class Paciente extends Component {
                 }
             }
 
+            // Set its state to uploading, to show the sppiner and the user knows that the file is in upload
             this.setState({
                 uploading: true
             })
@@ -63,12 +66,15 @@ class Paciente extends Component {
                 path
             })
 
+            // Add a new lembranca to the store, it will force the componente to render
+            // Inplies in a live lembracas table
             store.lembrancaStore.addlembranca({
                 desc,
                 data,
                 path
             });
 
+            // Hide the modal and the spinner, the upload is done
             this.setState({
                 uploading: false,
                 show: false
@@ -180,6 +186,8 @@ class Paciente extends Component {
 
     componentDidMount() {
         const { key } = this.props.location.state.paciente;
+
+        // Populates the store with the lembrancas allready uploaded to this paciente
         database.ref('pacientes/' + key)
             .once('value')
             .then((snapshot) => {

@@ -1,6 +1,6 @@
 import firebase from 'firebase';
 
-
+// Export all the need references to the firebase
 const config = {
     apiKey: "AIzaSyBpZOq7d6dCnbTkadvh1Sy8IgWUGGE7GiE",
     authDomain: "memento-7e2ff.firebaseapp.com",
