@@ -187,6 +187,7 @@ class Paciente extends Component {
     componentDidMount() {
         const { key } = this.props.location.state.paciente;
 
+        rootStore.lembrancaStore.clearAll();
         // Populates the store with the lembrancas allready uploaded to this paciente
         database.ref('pacientes/' + key)
             .once('value')

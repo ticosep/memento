@@ -12,6 +12,10 @@ class LembracaStore{
     @action addlembranca = (p) => {
         this.lembrancaList.push(p);
     }
+
+    @action clearAll = () => {
+        this.lembrancaList = [];
+    }
   
     @computed get lembranca() {
         return this.lembrancaList;
