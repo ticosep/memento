@@ -22,7 +22,9 @@ class LinhaPaciente extends Component {
         }
 
         if(id === 'jogar') {
-            history.push('/jogar');
+            history.push({pathname: '/jogar',  state: {
+                paciente
+              }});
         }
        
     }
