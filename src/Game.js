@@ -17,7 +17,7 @@ class Game extends Component {
   // Handle called after a message from the iframe (game)
   handleFrameTasks = (e) => {
     const { fnName } = e.data;
-    const {ready, gameSpecs} = this.state;
+    const { ready, gameSpecs } = this.state;
 
     // Here we need to check if the fnName is that one, it secure that the game is allreadt loaded and the data for it is done
     if (fnName === 'returnJson' && ready) {
@@ -61,10 +61,18 @@ class Game extends Component {
   }
 
   // After the component update, load all the data for the game we set a listner for the ifram messages
-  componentDidUpdate () {
-    this.ifr.onload = () => {
-      window.addEventListener("message", this.handleFrameTasks);
+  componentDidUpdate() {
+
+    if(this.ifr) {
+      
+      this.ifr.onload = () => {
+        window.addEventListener("message", this.handleFrameTasks);
+      }
     }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("message", this.handleFrameTasks);
   }
 
   componentDidMount() {
@@ -117,7 +125,7 @@ class Game extends Component {
 
 
       });
-      
+
   }
 }
 
