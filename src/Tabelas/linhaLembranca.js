@@ -45,13 +45,13 @@ class LinhaLembranca extends Component {
         // Create a reference to the file we want to download
         const lembrancaRef = storageRef.child(this.state.paciente.path);
 
-        let tipo;
     
         // Get the download URL
         lembrancaRef.getDownloadURL().then( (url)  => {
-
+            const { type } = this.state.paciente;
             this.setState({
-               lembracaUrl: url
+               lembracaUrl: url,
+               lembrancaType: type
             })
         }).catch( (error) => {
     
@@ -79,30 +79,6 @@ class LinhaLembranca extends Component {
                     console.log(error);
             }
         });
-
-        lembrancaRef.getMetadata().then((metadata) => {
-            const {contentType} =  metadata;
-            // Regex to find what is the content to be showed
-            const regex = /image|video?/gi;
-            const [match] = contentType.match(regex)
-
-            if(match === 'image'){
-                tipo = 'img'
-
-            }
-
-            if(match === 'video'){
-                tipo = 'video'
-            }
-
-            this.setState({
-                lembrancaType: tipo
-            })
-            // Metadata now contains the metadata for 'images/forest.jpg'
-          }).catch((error) => {
-            console.log(error);
-          });
-
          
         
     }

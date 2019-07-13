@@ -3,6 +3,9 @@ import { withRouter } from "react-router";
 import { database, storageRef } from './Firebase/firebase';
 import Loader from 'react-loader-spinner';
 
+let viewWidth = window.innerWidth;
+let viewHeight = window.innerHeight;
+
 class Game extends Component {
   constructor(props) {
     super(props);
@@ -37,12 +40,23 @@ class Game extends Component {
 
   }
 
+  onWindowResize = () => {
+    viewWidth = window.innerWidth;
+    viewHeight = window.innerHeight;
+
+    this.ifr.width = viewWidth;
+    this.ifr.height = viewHeight;
+
+    
+
+  }
+
   render() {
     const { ready } = this.state;
     let frame;
 
     if (ready) {
-      frame = <iframe ref={(f) => this.ifr = f} id="game" title="game" src="../game/" width="600px" height="400px"></iframe>;
+      frame = <iframe ref={(f) => this.ifr = f} id="game" title="game" src="../game/" width={viewWidth} height={viewHeight}></iframe>;
     }
 
     if (!ready) {
@@ -90,7 +104,8 @@ class Game extends Component {
           let lembrancaCount = arrayLembrancas.length;
 
           for (const [index, l] of arrayLembrancas.entries()) {
-            const { path, desc, data } = l[1];
+            const { path, desc, data, type } = l[1];
+           
 
             // Create a reference to the file we want to download
             const lembrancaRef = storageRef.child(path);
@@ -98,7 +113,7 @@ class Game extends Component {
 
             // Get the download URL
             lembrancaRef.getDownloadURL().then((url) => {
-              const lembracaStr = `{"${index}":{"desc": "${desc}", "data": "${data}", "url": "${url}"}}`;
+              const lembracaStr = `{"${index}":{"desc": "${desc}", "data": "${data}", "type": "${type}", "url": "${url}"}}`;
               const lembracaObj = JSON.parse(lembracaStr);
 
               gameSpecs = Object.assign(gameSpecs, lembracaObj);
@@ -111,6 +126,8 @@ class Game extends Component {
                   ready: true,
                   gameSpecs: gameSpecs
                 });
+
+                window.addEventListener( 'resize', this.onWindowResize, false );
 
               }
 

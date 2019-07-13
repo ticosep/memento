@@ -50,6 +50,7 @@
     "react-dev-utils": "^8.0.0",
     "react-dom": "^16.8.6",
     "react-loader-spinner": "^2.3.0",
+    "react-native-mime-types": "^2.2.1",
     "react-player": "^1.11.0",
     "react-redux-firebase": "^2.2.6",
     "react-router": "^5.0.0",

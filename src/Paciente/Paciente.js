@@ -6,6 +6,7 @@ import LinhaLembranca from '../Tabelas/linhaLembranca';
 import Loader from 'react-loader-spinner';
 import rootStore from '../Stores/rootStore';
 import { observer} from 'mobx-react';
+import { getContentType } from '../Utils/getContentType';
 
 const store = rootStore;
 
@@ -42,6 +43,9 @@ class Paciente extends Component {
         const { desc, data, file } = this.state;
 
         try {
+
+            let { type } = file;
+
             const lembracas = {
                 customMetadata: {
                     desc,
@@ -63,7 +67,8 @@ class Paciente extends Component {
             await database.ref('pacientes/' + key + '/lembracas').push({
                 desc,
                 data,
-                path
+                path,
+                type: getContentType(type)
             })
 
             // Add a new lembranca to the store, it will force the componente to render
@@ -71,7 +76,8 @@ class Paciente extends Component {
             store.lembrancaStore.addlembranca({
                 desc,
                 data,
-                path
+                path,
+                type: getContentType(type)
             });
 
             // Hide the modal and the spinner, the upload is done
@@ -142,8 +148,8 @@ class Paciente extends Component {
                     </thead>
                     <tbody>{
                          store.lembrancaStore.lembrancaList.map((row, index) => {
-                            const {desc, path, data} = row;
-                            const objectRow = Object.assign({}, {desc, path, data});
+                            const {desc, path, data, type} = row;
+                            const objectRow = Object.assign({}, {desc, path, data, type});
                             return <LinhaLembranca key={index} lembraca={objectRow} />
                             
                         })}</tbody>
