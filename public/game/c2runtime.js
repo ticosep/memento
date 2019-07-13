@@ -16218,217 +16218,6 @@ cr.plugins_.Function = function(runtime)
 }());
 ;
 ;
-cr.plugins_.HTML_iFrame_Pode = function(runtime)
-{
-	this.runtime = runtime;
-};
-(function ()
-{
-	var manuallyChanged = false;
-	var pluginProto = cr.plugins_.HTML_iFrame_Pode.prototype;
-	pluginProto.Type = function(plugin)
-	{
-		this.plugin = plugin;
-		this.runtime = plugin.runtime;
-	};
-	var typeProto = pluginProto.Type.prototype;
-	typeProto.onCreate = function()
-	{
-	};
-	pluginProto.Instance = function(type)
-	{
-		this.type = type;
-		this.runtime = type.runtime;
-	};
-	var instanceProto = pluginProto.Instance.prototype;
-	instanceProto.onCreate = function()
-	{
-		this.elem = document.createElement("iframe");
-		this.elem.src=this.properties[1];
-		this.elem.id=this.uid;
-		var widthfactor = this.width > 0 ? 1 : -1;
-		var heightfactor = this.height > 0 ? 1 : -1;
-		this.elem.setAttribute("id",this.properties[3]);
-		this.elem.style.cssText = this.properties[2];
-		this.elem.style.cssText= this.elem.style.cssText +"-webkit-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);"+
-									"-moz-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);"+
-									"-o-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);"+
-									"-ms-transform:rotate("+ this.angle * widthfactor * heightfactor*180/3.1416
-										+"deg);";
-		this.elem.width = Math.round(this.elem.width);
-		this.elem.height = Math.round(this.elem.height);
-		this.elem.x = Math.round(this.elem.x);
-		this.elem.y = Math.round(this.elem.y);
-		jQuery(this.elem).appendTo("body");
-		if (this.properties[0] === 0)
-		{
-			jQuery(this.elem).hide();
-			this.visible = false;
-		}
-		if(this.properties[4] == 0)
-			this.elem.scrolling = "auto";
-		if(this.properties[4] == 1)
-			this.elem.scrolling = "yes";
-		if(this.properties[4] == 2)
-			this.elem.scrolling = "no";
-		var onchangetrigger = (function (self) {
-			return function() {
-				self.runtime.trigger(cr.plugins_.HTML_iFrame.prototype.cnds.OnTextChanged, self);
-			};
-		})(this);
-		this.elem.onclick = (function (self) {
-			return function() {
-				self.runtime.trigger(cr.plugins_.HTML_iFrame.prototype.cnds.OnClicked, self);
-			};
-		})(this);
-		this.elem.ondblclick = (function (self) {
-			return function() {
-				self.runtime.trigger(cr.plugins_.HTML_iFrame.prototype.cnds.OnDoubleClicked, self);
-			};
-		})(this);
-		/*this.elem.onload = (function (self) {
-			return function() {
-					self.runtime.trigger(cr.plugins_.HTML_iFrame_Pode.prototype.cnds.OnLoaded, self);
-			};
-		})(this);*/
-		/**/
-		this.updatePosition();
-		this.runtime.tickMe(this);
-		this.currentURL = this.properties[1];
-	};
-	instanceProto.onDestroy = function ()
-	{
-		jQuery(this.elem).remove();
-		this.elem = null;
-	};
-	instanceProto.tick = function ()
-	{
-		this.updatePosition();
-	};
-	instanceProto.updatePosition = function ()
-	{
-		var left = this.layer.layerToCanvas(this.x, this.y, true);
-		var top = this.layer.layerToCanvas(this.x, this.y, false);
-		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
-		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
-		if (!this.visible || !this.layer.visible || right <= 0 || bottom <= 0 || left >= this.runtime.width || top >= this.runtime.height)
-		{
-			jQuery(this.elem).hide();
-			return;
-		}
-		if (left < 1)
-			left = 1;
-		if (top < 1)
-			top = 1;
-		if (right >= this.runtime.width)
-			right = this.runtime.width - 1;
-		if (bottom >= this.runtime.height)
-			bottom = this.runtime.height - 1;
-		jQuery(this.elem).show();
-		var offx = left + jQuery(this.runtime.canvas).offset().left;
-		var offy = top + jQuery(this.runtime.canvas).offset().top;
-		jQuery(this.elem).offset({left: offx, top: offy});
-		jQuery(this.elem).width(right - left);
-		jQuery(this.elem).height(bottom - top);
-		this.elem.width = Math.round(this.elem.width);
-		this.elem.height = Math.round(this.elem.height);
-		this.elem.x = Math.round(this.elem.x);
-		this.elem.y = Math.round(this.elem.y);
-	};
-	instanceProto.draw = function(ctx)
-	{
-	};
-	instanceProto.drawGL = function(glw)
-	{
-	};
-	pluginProto.cnds = {};
-	var cnds = pluginProto.cnds;
-	cnds.CompareURL = function (text, case_)
-	{
-			return this.currentURL === text;
-	};
-	cnds.CompareinnerHTML = function (text, case_)
-	{
-			return this.elem.document.body.innerHTML === text;
-	};
-	cnds.OnClicked = function ()
-	{
-		return true;
-	};
-	cnds.OnDoubleClicked = function ()
-	{
-		return true;
-	};
-	cnds.OnLoaded = function ()
-	{
-		return true;
-	};
-	cnds.isFocused = function ()
-	{
-		if(this.elem == document.activeElement) return true;
-		else return false;
-	};
-	pluginProto.acts = {};
-	var acts = pluginProto.acts;
-	acts.SetURL = function (text)
-	{
-		manuallyChanged = true;
-		this.elem.src = text;
-		this.currentURL = text;
-		this.elem.onload = (function (self) {
-			return function() {
-					self.runtime.trigger(cr.plugins_.HTML_iFrame_Pode.prototype.cnds.OnLoaded, self);
-			};
-		})(this);
-	};
-	acts.SetVisible = function (vis)
-	{
-		this.visible = (vis !== 0);
-	};
-	acts.SetStyle = function (text)
-	{
-		this.elem.style.cssText = text;
-	};
-	acts.GoForward = function ()
-	{
-		manuallyChanged = true;
-		this.elem.contentWindow.history.forward();
-	};
-	acts.GoBackward = function ()
-	{
-		manuallyChanged = true;
-		this.elem.contentWindow.history.back();
-	};
-	acts.Refresh = function ()
-	{
-		manuallyChanged = true;
-		this.elem.src=this.elem.src+" ";
-	};
-	acts.setFocus = function ()
-	{
-		manuallyChanged = true;
-		this.elem.focus();
-	};
-	pluginProto.exps = {};
-	var exps = pluginProto.exps;
-	exps.innerHTML = function (ret)
-	{
-		ret.set_string(jQuery(this.elem).contents().find("*").html());
-	};
-	exps.CurrentURL = function (ret)
-	{
-		ret.set_string(this.currentURL);
-	};
-	exps.GetStyle = function (ret)
-	{
-		ret.set_string(this.elem.style.cssText);
-	};
-}());
-;
-;
 cr.plugins_.JSON = function(runtime)
 {
     this.runtime = runtime;
@@ -17114,6 +16903,214 @@ cr.plugins_.Rex_FrameMessage = function(runtime)
     Exps.prototype.ReturnValue = function (ret)
 	{
 	    ret.set_any( this.exp_ReturnValue );
+	};
+}());
+;
+;
+cr.plugins_.Rex_Video = function(runtime)
+{
+	this.runtime = runtime;
+};
+(function ()
+{
+	var pluginProto = cr.plugins_.Rex_Video.prototype;
+	pluginProto.Type = function(plugin)
+	{
+		this.plugin = plugin;
+		this.runtime = plugin.runtime;
+	};
+	var typeProto = pluginProto.Type.prototype;
+	typeProto.onCreate = function()
+	{
+	};
+	pluginProto.Instance = function(type)
+	{
+		this.type = type;
+		this.runtime = type.runtime;
+	};
+	var instanceProto = pluginProto.Instance.prototype;
+	instanceProto.onCreate = function()
+	{
+		if (this.runtime.isDomFree)
+			return;
+        this.elem = document.createElement("video");
+        var source = document.createElement('source');
+        this.elem.appendChild(source);
+        source.src = this.properties[0];
+        source = document.createElement('source');
+        this.elem.appendChild(source);
+        source.src = this.properties[1];
+        source = document.createElement('source');
+        this.elem.appendChild(source);
+        source.src = this.properties[2];
+        this.elem.poster = this.properties[3];
+        this.elem.autoplay = (this.properties[4]==1);
+        this.elem.controls = (this.properties[5]==1);
+        this.elem.preload = ["auto","metadata","none"][this.properties[6]];
+        this.elem.loop = (this.properties[7]==1);
+        this.elem.muted = (this.properties[8]==1);
+        this.elem.id = this.properties[9];
+        jQuery(this.elem).appendTo(this.runtime.canvasdiv ? this.runtime.canvasdiv : "body");
+        this._pre_ended = false;
+        this._checked_is_playing = false;
+		this.updatePosition();
+		this.runtime.tickMe(this);
+	};
+	instanceProto.onDestroy = function ()
+	{
+		if (this.runtime.isDomFree)
+			return;
+		jQuery(this.elem).remove();
+		this.elem = null;
+	};
+	instanceProto.tick = function ()
+	{
+		this.updatePosition();
+        this.check_ended();
+        this.check_playing();
+	};
+	instanceProto.updatePosition = function ()
+	{
+		var left = this.layer.layerToCanvas(this.x, this.y, true);
+		var top = this.layer.layerToCanvas(this.x, this.y, false);
+		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
+		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
+		if (!this.visible || right <= 0 || bottom <= 0 || left >= this.runtime.width || top >= this.runtime.height)
+		{
+			jQuery(this.elem).hide();
+			return;
+		}
+		if (left < 1)
+			left = 1;
+		if (top < 1)
+			top = 1;
+		if (right >= this.runtime.width)
+			right = this.runtime.width - 1;
+		if (bottom >= this.runtime.height)
+			bottom = this.runtime.height - 1;
+		jQuery(this.elem).show();
+		var offx = left + jQuery(this.runtime.canvas).offset().left;
+		var offy = top + jQuery(this.runtime.canvas).offset().top;
+		jQuery(this.elem).offset({left: offx, top: offy});
+		jQuery(this.elem).width(right - left);
+		jQuery(this.elem).height(bottom - top);
+	};
+	instanceProto.draw = function(ctx)
+	{
+	};
+	instanceProto.drawGL = function(glw)
+	{
+	};
+	instanceProto.check_ended = function ()
+	{
+        if (!this._pre_ended && this.elem.ended)
+        {
+            this._checked_is_playing = false;
+            this.runtime.trigger(cr.plugins_.Rex_Video.prototype.cnds.OnEnded, this);
+		}
+        this._pre_ended = this.elem.ended;
+	};
+	instanceProto.check_playing = function(){
+		if((!this._checked_is_playing) &&
+		   (this.elem.currentTime != this.elem.initialTime))
+		{
+			this._checked_is_playing = true;
+			this.runtime.trigger(cr.plugins_.Rex_Video.prototype.cnds.OnPlay, this);
+		}
+	}
+	function Cnds() {};
+	pluginProto.cnds = new Cnds();
+	Cnds.prototype.OnEnded = function ()
+	{
+		return true;
+	};
+	Cnds.prototype.IsEnded = function ()
+	{
+		return this.elem.ended;
+	};
+	Cnds.prototype.OnPlay = function ()
+	{
+		return true;
+	};
+	function Acts() {};
+	pluginProto.acts = new Acts();
+	Acts.prototype.SetSource = function (src)
+	{
+		this.elem.src = src;
+	};
+	Acts.prototype.Play = function ()
+	{
+		this.elem.play();
+	};
+	Acts.prototype.Stop = function ()
+	{
+		this.elem.pause();
+		this.elem.initialTime = 0;
+		this.elem.currentTime = 0;
+		this._checked_is_playing = false;
+	};
+	Acts.prototype.Pause = function ()
+	{
+		this._checked_is_playing = false;
+		this.elem.pause();
+	};
+	Acts.prototype.SetControls = function (is_enable)
+	{
+		this.elem.controls = (is_enable==1);
+	};
+	Acts.prototype.SetVolume = function (volume)
+	{
+		this.elem.volume = cr.clamp(volume, 0, 1);
+	};
+	Acts.prototype.SetPoster = function (poster)
+	{
+		this.elem.poster = poster;
+	};
+	Acts.prototype.SetLoop = function (is_enable)
+	{
+		this.elem.loop = (is_enable==1);
+	};
+	Acts.prototype.SetMuted = function (is_enable)
+	{
+		this.elem.muted = (is_enable==1);
+	};
+	Acts.prototype.SetAutoplay = function (is_enable)
+	{
+		this.elem.autoplay = (is_enable==1);
+	};
+	Acts.prototype.SetVisible = function (vis)
+	{
+		this.visible = (vis !== 0);
+	};
+	function Exps() {};
+	pluginProto.exps = new Exps();
+	Exps.prototype.CurrentTime = function (ret)
+	{
+		ret.set_float(this.elem.currentTime);
+	};
+	Exps.prototype.IsPaused = function (ret)
+	{
+		ret.set_int(this.elem.paused);
+	};
+	Exps.prototype.IsMuted = function (ret)
+	{
+		ret.set_int(this.elem.muted);
+	};
+	Exps.prototype.Volume = function (ret)
+	{
+		ret.set_float(this.elem.volume);
+	};
+	Exps.prototype.ReadyState = function (ret)
+	{
+		ret.set_int(this.elem.readyState);
+	};
+	Exps.prototype.SourceHeight = function (ret)
+	{
+		ret.set_float(this.elem.videoHeight);
+	};
+	Exps.prototype.SourceWidth = function (ret)
+	{
+		ret.set_float(this.elem.videoWidth);
 	};
 }());
 ;
@@ -19001,24 +18998,1171 @@ cr.plugins_.Text = function(runtime)
 	};
 	pluginProto.exps = new Exps();
 }());
+;
+;
+cr.behaviors.Anchor = function(runtime)
+{
+	this.runtime = runtime;
+};
+(function ()
+{
+	var behaviorProto = cr.behaviors.Anchor.prototype;
+	behaviorProto.Type = function(behavior, objtype)
+	{
+		this.behavior = behavior;
+		this.objtype = objtype;
+		this.runtime = behavior.runtime;
+	};
+	var behtypeProto = behaviorProto.Type.prototype;
+	behtypeProto.onCreate = function()
+	{
+	};
+	behaviorProto.Instance = function(type, inst)
+	{
+		this.type = type;
+		this.behavior = type.behavior;
+		this.inst = inst;				// associated object instance to modify
+		this.runtime = type.runtime;
+	};
+	var behinstProto = behaviorProto.Instance.prototype;
+	behinstProto.onCreate = function()
+	{
+		this.anch_left = this.properties[0];		// 0 = left, 1 = right, 2 = none
+		this.anch_top = this.properties[1];			// 0 = top, 1 = bottom, 2 = none
+		this.anch_right = this.properties[2];		// 0 = none, 1 = right
+		this.anch_bottom = this.properties[3];		// 0 = none, 1 = bottom
+		this.inst.update_bbox();
+		this.xleft = this.inst.bbox.left;
+		this.ytop = this.inst.bbox.top;
+		this.xright = this.runtime.original_width - this.inst.bbox.left;
+		this.ybottom = this.runtime.original_height - this.inst.bbox.top;
+		this.rdiff = this.runtime.original_width - this.inst.bbox.right;
+		this.bdiff = this.runtime.original_height - this.inst.bbox.bottom;
+		this.enabled = (this.properties[4] !== 0);
+	};
+	behinstProto.saveToJSON = function ()
+	{
+		return {
+			"xleft": this.xleft,
+			"ytop": this.ytop,
+			"xright": this.xright,
+			"ybottom": this.ybottom,
+			"rdiff": this.rdiff,
+			"bdiff": this.bdiff,
+			"enabled": this.enabled
+		};
+	};
+	behinstProto.loadFromJSON = function (o)
+	{
+		this.xleft = o["xleft"];
+		this.ytop = o["ytop"];
+		this.xright = o["xright"];
+		this.ybottom = o["ybottom"];
+		this.rdiff = o["rdiff"];
+		this.bdiff = o["bdiff"];
+		this.enabled = o["enabled"];
+	};
+	behinstProto.tick = function ()
+	{
+		if (!this.enabled)
+			return;
+		var n;
+		var layer = this.inst.layer;
+		var inst = this.inst;
+		var bbox = this.inst.bbox;
+		if (this.anch_left === 0)
+		{
+			inst.update_bbox();
+			n = (layer.viewLeft + this.xleft) - bbox.left;
+			if (n !== 0)
+			{
+				inst.x += n;
+				inst.set_bbox_changed();
+			}
+		}
+		else if (this.anch_left === 1)
+		{
+			inst.update_bbox();
+			n = (layer.viewRight - this.xright) - bbox.left;
+			if (n !== 0)
+			{
+				inst.x += n;
+				inst.set_bbox_changed();
+			}
+		}
+		if (this.anch_top === 0)
+		{
+			inst.update_bbox();
+			n = (layer.viewTop + this.ytop) - bbox.top;
+			if (n !== 0)
+			{
+				inst.y += n;
+				inst.set_bbox_changed();
+			}
+		}
+		else if (this.anch_top === 1)
+		{
+			inst.update_bbox();
+			n = (layer.viewBottom - this.ybottom) - bbox.top;
+			if (n !== 0)
+			{
+				inst.y += n;
+				inst.set_bbox_changed();
+			}
+		}
+		if (this.anch_right === 1)
+		{
+			inst.update_bbox();
+			n = (layer.viewRight - this.rdiff) - bbox.right;
+			if (n !== 0)
+			{
+				inst.width += n;
+				if (inst.width < 0)
+					inst.width = 0;
+				inst.set_bbox_changed();
+			}
+		}
+		if (this.anch_bottom === 1)
+		{
+			inst.update_bbox();
+			n = (layer.viewBottom - this.bdiff) - bbox.bottom;
+			if (n !== 0)
+			{
+				inst.height += n;
+				if (inst.height < 0)
+					inst.height = 0;
+				inst.set_bbox_changed();
+			}
+		}
+	};
+	function Cnds() {};
+	behaviorProto.cnds = new Cnds();
+	function Acts() {};
+	Acts.prototype.SetEnabled = function (e)
+	{
+		if (this.enabled && e === 0)
+			this.enabled = false;
+		else if (!this.enabled && e !== 0)
+		{
+			this.inst.update_bbox();
+			this.xleft = this.inst.bbox.left;
+			this.ytop = this.inst.bbox.top;
+			this.xright = this.runtime.original_width - this.inst.bbox.left;
+			this.ybottom = this.runtime.original_height - this.inst.bbox.top;
+			this.rdiff = this.runtime.original_width - this.inst.bbox.right;
+			this.bdiff = this.runtime.original_height - this.inst.bbox.bottom;
+			this.enabled = true;
+		}
+	};
+	behaviorProto.acts = new Acts();
+	function Exps() {};
+	behaviorProto.exps = new Exps();
+}());
+;
+;
+cr.behaviors.DragnDrop = function(runtime)
+{
+	this.runtime = runtime;
+	var self = this;
+	if (!this.runtime.isDomFree)
+	{
+		jQuery(document).mousemove(
+			function(info) {
+				self.onMouseMove(info);
+			}
+		);
+		jQuery(document).mousedown(
+			function(info) {
+				self.onMouseDown(info);
+			}
+		);
+		jQuery(document).mouseup(
+			function(info) {
+				self.onMouseUp(info);
+			}
+		);
+	}
+	var elem = (this.runtime.fullscreen_mode > 0) ? document : this.runtime.canvas;
+	if (this.runtime.isDirectCanvas)
+		elem = window["Canvas"];
+	else if (this.runtime.isCocoonJs)
+		elem = window;
+	if (typeof PointerEvent !== "undefined")
+	{
+		elem.addEventListener("pointerdown",
+			function(info) {
+				self.onPointerStart(info);
+			},
+			false
+		);
+		elem.addEventListener("pointermove",
+			function(info) {
+				self.onPointerMove(info);
+			},
+			false
+		);
+		elem.addEventListener("pointerup",
+			function(info) {
+				self.onPointerEnd(info);
+			},
+			false
+		);
+		elem.addEventListener("pointercancel",
+			function(info) {
+				self.onPointerEnd(info);
+			},
+			false
+		);
+	}
+	else if (window.navigator["msPointerEnabled"])
+	{
+		elem.addEventListener("MSPointerDown",
+			function(info) {
+				self.onPointerStart(info);
+			},
+			false
+		);
+		elem.addEventListener("MSPointerMove",
+			function(info) {
+				self.onPointerMove(info);
+			},
+			false
+		);
+		elem.addEventListener("MSPointerUp",
+			function(info) {
+				self.onPointerEnd(info);
+			},
+			false
+		);
+		elem.addEventListener("MSPointerCancel",
+			function(info) {
+				self.onPointerEnd(info);
+			},
+			false
+		);
+	}
+	else
+	{
+		elem.addEventListener("touchstart",
+			function(info) {
+				self.onTouchStart(info);
+			},
+			false
+		);
+		elem.addEventListener("touchmove",
+			function(info) {
+				self.onTouchMove(info);
+			},
+			false
+		);
+		elem.addEventListener("touchend",
+			function(info) {
+				self.onTouchEnd(info);
+			},
+			false
+		);
+		elem.addEventListener("touchcancel",
+			function(info) {
+				self.onTouchEnd(info);
+			},
+			false
+		);
+	}
+};
+(function ()
+{
+	var behaviorProto = cr.behaviors.DragnDrop.prototype;
+	var dummyoffset = {left: 0, top: 0};
+	function GetDragDropBehavior(inst)
+	{
+		var i, len;
+		for (i = 0, len = inst.behavior_insts.length; i < len; i++)
+		{
+			if (inst.behavior_insts[i] instanceof behaviorProto.Instance)
+				return inst.behavior_insts[i];
+		}
+		return null;
+	};
+	behaviorProto.onMouseDown = function (info)
+	{
+		if (info.which !== 1)
+			return;		// not left mouse button
+		this.onInputDown("leftmouse", info.pageX, info.pageY);
+	};
+	behaviorProto.onMouseMove = function (info)
+	{
+		if (info.which !== 1)
+			return;		// not left mouse button
+		this.onInputMove("leftmouse", info.pageX, info.pageY);
+	};
+	behaviorProto.onMouseUp = function (info)
+	{
+		if (info.which !== 1)
+			return;		// not left mouse button
+		this.onInputUp("leftmouse");
+	};
+	behaviorProto.onTouchStart = function (info)
+	{
+		if (info.preventDefault && cr.isCanvasInputEvent(info))
+			info.preventDefault();
+		var i, len, t, id;
+		for (i = 0, len = info.changedTouches.length; i < len; i++)
+		{
+			t = info.changedTouches[i];
+			id = t.identifier;
+			this.onInputDown(id ? id.toString() : "<none>", t.pageX, t.pageY);
+		}
+	};
+	behaviorProto.onTouchMove = function (info)
+	{
+		if (info.preventDefault)
+			info.preventDefault();
+		var i, len, t, id;
+		for (i = 0, len = info.changedTouches.length; i < len; i++)
+		{
+			t = info.changedTouches[i];
+			id = t.identifier;
+			this.onInputMove(id ? id.toString() : "<none>", t.pageX, t.pageY);
+		}
+	};
+	behaviorProto.onTouchEnd = function (info)
+	{
+		if (info.preventDefault && cr.isCanvasInputEvent(info))
+			info.preventDefault();
+		var i, len, t, id;
+		for (i = 0, len = info.changedTouches.length; i < len; i++)
+		{
+			t = info.changedTouches[i];
+			id = t.identifier;
+			this.onInputUp(id ? id.toString() : "<none>");
+		}
+	};
+	behaviorProto.onPointerStart = function (info)
+	{
+		if (info["pointerType"] === info["MSPOINTER_TYPE_MOUSE"] || info["pointerType"] === "mouse")
+			return;
+		if (info.preventDefault && cr.isCanvasInputEvent(info))
+			info.preventDefault();
+		this.onInputDown(info["pointerId"].toString(), info.pageX, info.pageY);
+	};
+	behaviorProto.onPointerMove = function (info)
+	{
+		if (info["pointerType"] === info["MSPOINTER_TYPE_MOUSE"] || info["pointerType"] === "mouse")
+			return;
+		if (info.preventDefault)
+			info.preventDefault();
+		this.onInputMove(info["pointerId"].toString(), info.pageX, info.pageY);
+	};
+	behaviorProto.onPointerEnd = function (info)
+	{
+		if (info["pointerType"] === info["MSPOINTER_TYPE_MOUSE"] || info["pointerType"] === "mouse")
+			return;
+		if (info.preventDefault && cr.isCanvasInputEvent(info))
+			info.preventDefault();
+		this.onInputUp(info["pointerId"].toString());
+	};
+	behaviorProto.onInputDown = function (src, pageX, pageY)
+	{
+		var offset = this.runtime.isDomFree ? dummyoffset : jQuery(this.runtime.canvas).offset();
+		var x = pageX - offset.left;
+		var y = pageY - offset.top;
+		var lx, ly, topx, topy;
+		var arr = this.my_instances.valuesRef();
+		var i, len, b, inst, topmost = null;
+		for (i = 0, len = arr.length; i < len; i++)
+		{
+			inst = arr[i];
+			b = GetDragDropBehavior(inst);
+			if (!b.enabled || b.dragging)
+				continue;		// don't consider disabled or already-dragging instances
+			lx = inst.layer.canvasToLayer(x, y, true);
+			ly = inst.layer.canvasToLayer(x, y, false);
+			inst.update_bbox();
+			if (!inst.contains_pt(lx, ly))
+				continue;		// don't consider instances not over this point
+			if (!topmost)
+			{
+				topmost = inst;
+				topx = lx;
+				topy = ly;
+				continue;
+			}
+			if (inst.layer.index > topmost.layer.index)
+			{
+				topmost = inst;
+				topx = lx;
+				topy = ly;
+				continue;
+			}
+			if (inst.layer.index === topmost.layer.index && inst.get_zindex() > topmost.get_zindex())
+			{
+				topmost = inst;
+				topx = lx;
+				topy = ly;
+				continue;
+			}
+		}
+		if (topmost)
+			GetDragDropBehavior(topmost).onDown(src, topx, topy);
+	};
+	behaviorProto.onInputMove = function (src, pageX, pageY)
+	{
+		var offset = this.runtime.isDomFree ? dummyoffset : jQuery(this.runtime.canvas).offset();
+		var x = pageX - offset.left;
+		var y = pageY - offset.top;
+		var lx, ly;
+		var arr = this.my_instances.valuesRef();
+		var i, len, b, inst;
+		for (i = 0, len = arr.length; i < len; i++)
+		{
+			inst = arr[i];
+			b = GetDragDropBehavior(inst);
+			if (!b.enabled || !b.dragging || (b.dragging && b.dragsource !== src))
+				continue;		// don't consider disabled, not-dragging, or dragging by other sources
+			lx = inst.layer.canvasToLayer(x, y, true);
+			ly = inst.layer.canvasToLayer(x, y, false);
+			b.onMove(lx, ly);
+		}
+	};
+	behaviorProto.onInputUp = function (src)
+	{
+		var arr = this.my_instances.valuesRef();
+		var i, len, b, inst;
+		for (i = 0, len = arr.length; i < len; i++)
+		{
+			inst = arr[i];
+			b = GetDragDropBehavior(inst);
+			if (b.dragging && b.dragsource === src)
+				b.onUp();
+		}
+	};
+	behaviorProto.Type = function(behavior, objtype)
+	{
+		this.behavior = behavior;
+		this.objtype = objtype;
+		this.runtime = behavior.runtime;
+	};
+	var behtypeProto = behaviorProto.Type.prototype;
+	behtypeProto.onCreate = function()
+	{
+	};
+	behaviorProto.Instance = function(type, inst)
+	{
+		this.type = type;
+		this.behavior = type.behavior;
+		this.inst = inst;				// associated object instance to modify
+		this.runtime = type.runtime;
+	};
+	var behinstProto = behaviorProto.Instance.prototype;
+	behinstProto.onCreate = function()
+	{
+		this.dragging = false;
+		this.dx = 0;
+		this.dy = 0;
+		this.dragsource = "<none>";
+		this.axes = this.properties[0];
+		this.enabled = (this.properties[1] !== 0);
+	};
+	behinstProto.saveToJSON = function ()
+	{
+		return { "enabled": this.enabled };
+	};
+	behinstProto.loadFromJSON = function (o)
+	{
+		this.enabled = o["enabled"];
+		this.dragging = false;
+	};
+	behinstProto.onDown = function(src, x, y)
+	{
+		this.dx = x - this.inst.x;
+		this.dy = y - this.inst.y;
+		this.dragging = true;
+		this.dragsource = src;
+		this.runtime.isInUserInputEvent = true;
+		this.runtime.trigger(cr.behaviors.DragnDrop.prototype.cnds.OnDragStart, this.inst);
+		this.runtime.isInUserInputEvent = false;
+	};
+	behinstProto.onMove = function(x, y)
+	{
+		var newx = x - this.dx;
+		var newy = y - this.dy;
+		if (this.axes === 0)		// both
+		{
+			if (this.inst.x !== newx || this.inst.y !== newy)
+			{
+				this.inst.x = newx;
+				this.inst.y = newy;
+				this.inst.set_bbox_changed();
+			}
+		}
+		else if (this.axes === 1)	// horizontal
+		{
+			if (this.inst.x !== newx)
+			{
+				this.inst.x = newx;
+				this.inst.set_bbox_changed();
+			}
+		}
+		else if (this.axes === 2)	// vertical
+		{
+			if (this.inst.y !== newy)
+			{
+				this.inst.y = newy;
+				this.inst.set_bbox_changed();
+			}
+		}
+	};
+	behinstProto.onUp = function()
+	{
+		this.dragging = false;
+		this.runtime.isInUserInputEvent = true;
+		this.runtime.trigger(cr.behaviors.DragnDrop.prototype.cnds.OnDrop, this.inst);
+		this.runtime.isInUserInputEvent = false;
+	};
+	behinstProto.tick = function ()
+	{
+	};
+	function Cnds() {};
+	Cnds.prototype.IsDragging = function ()
+	{
+		return this.dragging;
+	};
+	Cnds.prototype.OnDragStart = function ()
+	{
+		return true;
+	};
+	Cnds.prototype.OnDrop = function ()
+	{
+		return true;
+	};
+	Cnds.prototype.IsEnabled = function ()
+	{
+		return !!this.enabled;
+	};
+	behaviorProto.cnds = new Cnds();
+	function Acts() {};
+	Acts.prototype.SetEnabled = function (s)
+	{
+		this.enabled = (s !== 0);
+		if (!this.enabled)
+			this.dragging = false;
+	};
+	Acts.prototype.Drop = function ()
+	{
+		if (this.dragging)
+			this.onUp();
+	};
+	behaviorProto.acts = new Acts();
+	function Exps() {};
+	behaviorProto.exps = new Exps();
+}());
+;
+;
+cr.behaviors.EightDir = function(runtime)
+{
+	this.runtime = runtime;
+};
+(function ()
+{
+	var behaviorProto = cr.behaviors.EightDir.prototype;
+	behaviorProto.Type = function(behavior, objtype)
+	{
+		this.behavior = behavior;
+		this.objtype = objtype;
+		this.runtime = behavior.runtime;
+	};
+	var behtypeProto = behaviorProto.Type.prototype;
+	behtypeProto.onCreate = function()
+	{
+	};
+	behaviorProto.Instance = function(type, inst)
+	{
+		this.type = type;
+		this.behavior = type.behavior;
+		this.inst = inst;				// associated object instance to modify
+		this.runtime = type.runtime;
+		this.upkey = false;
+		this.downkey = false;
+		this.leftkey = false;
+		this.rightkey = false;
+		this.ignoreInput = false;
+		this.simup = false;
+		this.simdown = false;
+		this.simleft = false;
+		this.simright = false;
+		this.lastuptick = -1;
+		this.lastdowntick = -1;
+		this.lastlefttick = -1;
+		this.lastrighttick = -1;
+		this.dx = 0;
+		this.dy = 0;
+	};
+	var behinstProto = behaviorProto.Instance.prototype;
+	behinstProto.onCreate = function()
+	{
+		this.maxspeed = this.properties[0];
+		this.acc = this.properties[1];
+		this.dec = this.properties[2];
+		this.directions = this.properties[3];	// 0=Up & down, 1=Left & right, 2=4 directions, 3=8 directions"
+		this.angleMode = this.properties[4];	// 0=No,1=90-degree intervals, 2=45-degree intervals, 3=360 degree (smooth)
+		this.defaultControls = (this.properties[5] === 1);	// 0=no, 1=yes
+		this.enabled = (this.properties[6] !== 0);
+		if (this.defaultControls && !this.runtime.isDomFree)
+		{
+			jQuery(document).keydown(
+				(function (self) {
+					return function(info) {
+						self.onKeyDown(info);
+					};
+				})(this)
+			);
+			jQuery(document).keyup(
+				(function (self) {
+					return function(info) {
+						self.onKeyUp(info);
+					};
+				})(this)
+			);
+		}
+	};
+	behinstProto.saveToJSON = function ()
+	{
+		return {
+			"dx": this.dx,
+			"dy": this.dy,
+			"enabled": this.enabled,
+			"maxspeed": this.maxspeed,
+			"acc": this.acc,
+			"dec": this.dec,
+			"ignoreInput": this.ignoreInput
+		};
+	};
+	behinstProto.loadFromJSON = function (o)
+	{
+		this.dx = o["dx"];
+		this.dy = o["dy"];
+		this.enabled = o["enabled"];
+		this.maxspeed = o["maxspeed"];
+		this.acc = o["acc"];
+		this.dec = o["dec"];
+		this.ignoreInput = o["ignoreInput"];
+		this.upkey = false;
+		this.downkey = false;
+		this.leftkey = false;
+		this.rightkey = false;
+		this.simup = false;
+		this.simdown = false;
+		this.simleft = false;
+		this.simright = false;
+		this.lastuptick = -1;
+		this.lastdowntick = -1;
+		this.lastlefttick = -1;
+		this.lastrighttick = -1;
+	};
+	behinstProto.onKeyDown = function (info)
+	{
+		var tickcount = this.runtime.tickcount;
+		switch (info.which) {
+		case 37:	// left
+			info.preventDefault();
+			if (this.lastlefttick < tickcount)
+				this.leftkey = true;
+			break;
+		case 38:	// up
+			info.preventDefault();
+			if (this.lastuptick < tickcount)
+				this.upkey = true;
+			break;
+		case 39:	// right
+			info.preventDefault();
+			if (this.lastrighttick < tickcount)
+				this.rightkey = true;
+			break;
+		case 40:	// down
+			info.preventDefault();
+			if (this.lastdowntick < tickcount)
+				this.downkey = true;
+			break;
+		}
+	};
+	behinstProto.onKeyUp = function (info)
+	{
+		var tickcount = this.runtime.tickcount;
+		switch (info.which) {
+		case 37:	// left
+			info.preventDefault();
+			this.leftkey = false;
+			this.lastlefttick = tickcount;
+			break;
+		case 38:	// up
+			info.preventDefault();
+			this.upkey = false;
+			this.lastuptick = tickcount;
+			break;
+		case 39:	// right
+			info.preventDefault();
+			this.rightkey = false;
+			this.lastrighttick = tickcount;
+			break;
+		case 40:	// down
+			info.preventDefault();
+			this.downkey = false;
+			this.lastdowntick = tickcount;
+			break;
+		}
+	};
+	behinstProto.onWindowBlur = function ()
+	{
+		this.upkey = false;
+		this.downkey = false;
+		this.leftkey = false;
+		this.rightkey = false;
+	};
+	behinstProto.tick = function ()
+	{
+		var dt = this.runtime.getDt(this.inst);
+		var left = this.leftkey || this.simleft;
+		var right = this.rightkey || this.simright;
+		var up = this.upkey || this.simup;
+		var down = this.downkey || this.simdown;
+		this.simleft = false;
+		this.simright = false;
+		this.simup = false;
+		this.simdown = false;
+		if (!this.enabled)
+			return;
+		var collobj = this.runtime.testOverlapSolid(this.inst);
+		if (collobj)
+		{
+			this.runtime.registerCollision(this.inst, collobj);
+			if (!this.runtime.pushOutSolidNearest(this.inst))
+				return;		// must be stuck in solid
+		}
+		if (this.ignoreInput)
+		{
+			left = false;
+			right = false;
+			up = false;
+			down = false;
+		}
+		if (this.directions === 0)
+		{
+			left = false;
+			right = false;
+		}
+		else if (this.directions === 1)
+		{
+			up = false;
+			down = false;
+		}
+		if (this.directions === 2 && (up || down))
+		{
+			left = false;
+			right = false;
+		}
+		if (left == right)	// both up or both down
+		{
+			if (this.dx < 0)
+			{
+				this.dx += this.dec * dt;
+				if (this.dx > 0)
+					this.dx = 0;
+			}
+			else if (this.dx > 0)
+			{
+				this.dx -= this.dec * dt;
+				if (this.dx < 0)
+					this.dx = 0;
+			}
+		}
+		if (up == down)
+		{
+			if (this.dy < 0)
+			{
+				this.dy += this.dec * dt;
+				if (this.dy > 0)
+					this.dy = 0;
+			}
+			else if (this.dy > 0)
+			{
+				this.dy -= this.dec * dt;
+				if (this.dy < 0)
+					this.dy = 0;
+			}
+		}
+		if (left && !right)
+		{
+			if (this.dx > 0)
+				this.dx -= (this.acc + this.dec) * dt;
+			else
+				this.dx -= this.acc * dt;
+		}
+		if (right && !left)
+		{
+			if (this.dx < 0)
+				this.dx += (this.acc + this.dec) * dt;
+			else
+				this.dx += this.acc * dt;
+		}
+		if (up && !down)
+		{
+			if (this.dy > 0)
+				this.dy -= (this.acc + this.dec) * dt;
+			else
+				this.dy -= this.acc * dt;
+		}
+		if (down && !up)
+		{
+			if (this.dy < 0)
+				this.dy += (this.acc + this.dec) * dt;
+			else
+				this.dy += this.acc * dt;
+		}
+		var ax, ay;
+		if (this.dx !== 0 || this.dy !== 0)
+		{
+			var speed = Math.sqrt(this.dx * this.dx + this.dy * this.dy);
+			if (speed > this.maxspeed)
+			{
+				var a = Math.atan2(this.dy, this.dx);
+				this.dx = this.maxspeed * Math.cos(a);
+				this.dy = this.maxspeed * Math.sin(a);
+			}
+			var oldx = this.inst.x;
+			var oldy = this.inst.y;
+			var oldangle = this.inst.angle;
+			this.inst.x += this.dx * dt;
+			this.inst.set_bbox_changed();
+			collobj = this.runtime.testOverlapSolid(this.inst);
+			if (collobj)
+			{
+				if (!this.runtime.pushOutSolid(this.inst, (this.dx < 0 ? 1 : -1), 0, Math.abs(Math.floor(this.dx * dt))))
+				{
+					this.inst.x = oldx;
+				}
+				this.dx = 0;
+				this.inst.set_bbox_changed();
+				this.runtime.registerCollision(this.inst, collobj);
+			}
+			this.inst.y += this.dy * dt;
+			this.inst.set_bbox_changed();
+			collobj = this.runtime.testOverlapSolid(this.inst);
+			if (collobj)
+			{
+				if (!this.runtime.pushOutSolid(this.inst, 0, (this.dy < 0 ? 1 : -1), Math.abs(Math.floor(this.dy * dt))))
+				{
+					this.inst.y = oldy;
+				}
+				this.dy = 0;
+				this.inst.set_bbox_changed();
+				this.runtime.registerCollision(this.inst, collobj);
+			}
+			ax = cr.round6dp(this.dx);
+			ay = cr.round6dp(this.dy);
+			if ((ax !== 0 || ay !== 0) && this.inst.type.plugin.is_rotatable)
+			{
+				if (this.angleMode === 1)	// 90 degree intervals
+					this.inst.angle = cr.to_clamped_radians(Math.round(cr.to_degrees(Math.atan2(ay, ax)) / 90.0) * 90.0);
+				else if (this.angleMode === 2)	// 45 degree intervals
+					this.inst.angle = cr.to_clamped_radians(Math.round(cr.to_degrees(Math.atan2(ay, ax)) / 45.0) * 45.0);
+				else if (this.angleMode === 3)	// 360 degree
+					this.inst.angle = Math.atan2(ay, ax);
+			}
+			this.inst.set_bbox_changed();
+			if (this.inst.angle != oldangle)
+			{
+				collobj = this.runtime.testOverlapSolid(this.inst);
+				if (collobj)
+				{
+					this.inst.angle = oldangle;
+					this.inst.set_bbox_changed();
+					this.runtime.registerCollision(this.inst, collobj);
+				}
+			}
+		}
+	};
+	function Cnds() {};
+	Cnds.prototype.IsMoving = function ()
+	{
+		var speed = Math.sqrt(this.dx * this.dx + this.dy * this.dy);
+		return speed > 1e-10;
+	};
+	Cnds.prototype.CompareSpeed = function (cmp, s)
+	{
+		var speed = Math.sqrt(this.dx * this.dx + this.dy * this.dy);
+		return cr.do_cmp(speed, cmp, s);
+	};
+	behaviorProto.cnds = new Cnds();
+	function Acts() {};
+	Acts.prototype.Stop = function ()
+	{
+		this.dx = 0;
+		this.dy = 0;
+	};
+	Acts.prototype.Reverse = function ()
+	{
+		this.dx *= -1;
+		this.dy *= -1;
+	};
+	Acts.prototype.SetIgnoreInput = function (ignoring)
+	{
+		this.ignoreInput = ignoring;
+	};
+	Acts.prototype.SetSpeed = function (speed)
+	{
+		if (speed < 0)
+			speed = 0;
+		if (speed > this.maxspeed)
+			speed = this.maxspeed;
+		var a = Math.atan2(this.dy, this.dx);
+		this.dx = speed * Math.cos(a);
+		this.dy = speed * Math.sin(a);
+	};
+	Acts.prototype.SetMaxSpeed = function (maxspeed)
+	{
+		this.maxspeed = maxspeed;
+		if (this.maxspeed < 0)
+			this.maxspeed = 0;
+	};
+	Acts.prototype.SetAcceleration = function (acc)
+	{
+		this.acc = acc;
+		if (this.acc < 0)
+			this.acc = 0;
+	};
+	Acts.prototype.SetDeceleration = function (dec)
+	{
+		this.dec = dec;
+		if (this.dec < 0)
+			this.dec = 0;
+	};
+	Acts.prototype.SimulateControl = function (ctrl)
+	{
+		switch (ctrl) {
+		case 0:		this.simleft = true;	break;
+		case 1:		this.simright = true;	break;
+		case 2:		this.simup = true;		break;
+		case 3:		this.simdown = true;	break;
+		}
+	};
+	Acts.prototype.SetEnabled = function (en)
+	{
+		this.enabled = (en === 1);
+	};
+	Acts.prototype.SetVectorX = function (x_)
+	{
+		this.dx = x_;
+	};
+	Acts.prototype.SetVectorY = function (y_)
+	{
+		this.dy = y_;
+	};
+	behaviorProto.acts = new Acts();
+	function Exps() {};
+	Exps.prototype.Speed = function (ret)
+	{
+		ret.set_float(Math.sqrt(this.dx * this.dx + this.dy * this.dy));
+	};
+	Exps.prototype.MaxSpeed = function (ret)
+	{
+		ret.set_float(this.maxspeed);
+	};
+	Exps.prototype.Acceleration = function (ret)
+	{
+		ret.set_float(this.acc);
+	};
+	Exps.prototype.Deceleration = function (ret)
+	{
+		ret.set_float(this.dec);
+	};
+	Exps.prototype.MovingAngle = function (ret)
+	{
+		ret.set_float(cr.to_degrees(Math.atan2(this.dy, this.dx)));
+	};
+	Exps.prototype.VectorX = function (ret)
+	{
+		ret.set_float(this.dx);
+	};
+	Exps.prototype.VectorY = function (ret)
+	{
+		ret.set_float(this.dy);
+	};
+	behaviorProto.exps = new Exps();
+}());
+;
+;
+cr.behaviors.bound = function(runtime)
+{
+	this.runtime = runtime;
+};
+(function ()
+{
+	var behaviorProto = cr.behaviors.bound.prototype;
+	behaviorProto.Type = function(behavior, objtype)
+	{
+		this.behavior = behavior;
+		this.objtype = objtype;
+		this.runtime = behavior.runtime;
+	};
+	var behtypeProto = behaviorProto.Type.prototype;
+	behtypeProto.onCreate = function()
+	{
+	};
+	behaviorProto.Instance = function(type, inst)
+	{
+		this.type = type;
+		this.behavior = type.behavior;
+		this.inst = inst;				// associated object instance to modify
+		this.runtime = type.runtime;
+		this.mode = 0;
+	};
+	var behinstProto = behaviorProto.Instance.prototype;
+	behinstProto.onCreate = function()
+	{
+		this.mode = this.properties[0];	// 0 = origin, 1 = edge
+	};
+	behinstProto.tick = function ()
+	{
+	};
+	behinstProto.tick2 = function ()
+	{
+		this.inst.update_bbox();
+		var bbox = this.inst.bbox;
+		var layout = this.inst.layer.layout;
+		var changed = false;
+		if (this.mode === 0)	// origin
+		{
+			if (this.inst.x < 0)
+			{
+				this.inst.x = 0;
+				changed = true;
+			}
+			if (this.inst.y < 0)
+			{
+				this.inst.y = 0;
+				changed = true;
+			}
+			if (this.inst.x > layout.width)
+			{
+				this.inst.x = layout.width;
+				changed = true;
+			}
+			if (this.inst.y > layout.height)
+			{
+				this.inst.y = layout.height;
+				changed = true;
+			}
+		}
+		else
+		{
+			if (bbox.left < 0)
+			{
+				this.inst.x -= bbox.left;
+				changed = true;
+			}
+			if (bbox.top < 0)
+			{
+				this.inst.y -= bbox.top;
+				changed = true;
+			}
+			if (bbox.right > layout.width)
+			{
+				this.inst.x -= (bbox.right - layout.width);
+				changed = true;
+			}
+			if (bbox.bottom > layout.height)
+			{
+				this.inst.y -= (bbox.bottom - layout.height);
+				changed = true;
+			}
+		}
+		if (changed)
+			this.inst.set_bbox_changed();
+	};
+}());
+;
+;
+cr.behaviors.solid = function(runtime)
+{
+	this.runtime = runtime;
+};
+(function ()
+{
+	var behaviorProto = cr.behaviors.solid.prototype;
+	behaviorProto.Type = function(behavior, objtype)
+	{
+		this.behavior = behavior;
+		this.objtype = objtype;
+		this.runtime = behavior.runtime;
+	};
+	var behtypeProto = behaviorProto.Type.prototype;
+	behtypeProto.onCreate = function()
+	{
+	};
+	behaviorProto.Instance = function(type, inst)
+	{
+		this.type = type;
+		this.behavior = type.behavior;
+		this.inst = inst;				// associated object instance to modify
+		this.runtime = type.runtime;
+	};
+	var behinstProto = behaviorProto.Instance.prototype;
+	behinstProto.onCreate = function()
+	{
+		this.inst.extra["solidEnabled"] = (this.properties[0] !== 0);
+	};
+	behinstProto.tick = function ()
+	{
+	};
+	function Cnds() {};
+	Cnds.prototype.IsEnabled = function ()
+	{
+		return this.inst.extra["solidEnabled"];
+	};
+	behaviorProto.cnds = new Cnds();
+	function Acts() {};
+	Acts.prototype.SetEnabled = function (e)
+	{
+		this.inst.extra["solidEnabled"] = !!e;
+	};
+	behaviorProto.acts = new Acts();
+}());
 cr.getObjectRefTable = function () { return [
 	cr.plugins_.Browser,
 	cr.plugins_.Function,
 	cr.plugins_.JSON,
-	cr.plugins_.HTML_iFrame_Pode,
+	cr.plugins_.Sprite,
 	cr.plugins_.Text,
 	cr.plugins_.Rex_FrameMessage,
-	cr.plugins_.Sprite,
+	cr.plugins_.Rex_Video,
+	cr.behaviors.DragnDrop,
+	cr.behaviors.Anchor,
+	cr.behaviors.bound,
+	cr.behaviors.solid,
+	cr.behaviors.EightDir,
 	cr.plugins_.Function.prototype.cnds.OnFunction,
-	cr.plugins_.Text.prototype.acts.SetText,
-	cr.plugins_.Sprite.prototype.acts.LoadURL,
+	cr.system_object.prototype.cnds.For,
+	cr.system_object.prototype.exps["int"],
 	cr.plugins_.JSON.prototype.exps.Value,
+	cr.plugins_.Text.prototype.acts.SetText,
+	cr.system_object.prototype.cnds.Compare,
+	cr.system_object.prototype.exps.loopindex,
+	cr.system_object.prototype.acts.CreateObject,
+	cr.plugins_.Sprite.prototype.acts.LoadURL,
+	cr.plugins_.Sprite.prototype.acts.SetHeight,
+	cr.system_object.prototype.exps.viewportbottom,
+	cr.plugins_.Sprite.prototype.acts.SetWidth,
+	cr.system_object.prototype.exps.viewportright,
+	cr.plugins_.Rex_Video.prototype.acts.SetSource,
+	cr.plugins_.Rex_Video.prototype.acts.SetAutoplay,
+	cr.plugins_.Rex_Video.prototype.acts.SetHeight,
+	cr.plugins_.Rex_Video.prototype.acts.SetWidth,
+	cr.plugins_.Function.prototype.acts.CallFunction,
 	cr.plugins_.Rex_FrameMessage.prototype.cnds.OnFunction,
 	cr.plugins_.Rex_FrameMessage.prototype.cnds.OnReturn,
 	cr.plugins_.Rex_FrameMessage.prototype.acts.ConsoleLog,
 	cr.plugins_.Rex_FrameMessage.prototype.exps.ReturnValue,
 	cr.plugins_.JSON.prototype.acts.LoadJSON,
-	cr.plugins_.Function.prototype.acts.CallFunction,
 	cr.system_object.prototype.cnds.OnLayoutStart,
 	cr.plugins_.Rex_FrameMessage.prototype.acts.CallFunction
 ];};

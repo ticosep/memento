@@ -46,9 +46,7 @@ class Game extends Component {
 
     this.ifr.width = viewWidth;
     this.ifr.height = viewHeight;
-
-    
-
+ 
   }
 
   render() {
@@ -87,6 +85,7 @@ class Game extends Component {
 
   componentWillUnmount() {
     window.removeEventListener("message", this.handleFrameTasks);
+    window.removeEventListener('resize', this.onWindowResize);
   }
 
   componentDidMount() {
@@ -98,10 +97,12 @@ class Game extends Component {
         let gameSpecs = {};
 
         if (lembracas) {
-          gameSpecs = Object.assign({}, { nome: nome, cpf: cpf });
 
           const arrayLembrancas = Object.entries(lembracas);
           let lembrancaCount = arrayLembrancas.length;
+
+          gameSpecs = Object.assign({}, { nome: nome, cpf: cpf, size: lembrancaCount - 1  });
+
 
           for (const [index, l] of arrayLembrancas.entries()) {
             const { path, desc, data, type } = l[1];
