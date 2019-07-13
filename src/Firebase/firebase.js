@@ -1,4 +1,7 @@
-import firebase from 'firebase';
+import firebase from 'firebase/app';
+import 'firebase/database';
+import 'firebase/storage';
+import 'firebase/auth';
 
 // Export all the need references to the firebase
 const config = {
@@ -12,8 +15,8 @@ const config = {
 };
 
 const app = firebase.initializeApp(config);
-const database = firebase.database();
-const storageRef = firebase.storage().ref();
+const database = app.database();
+const storageRef = app.storage().ref();
 
 
 export  { app, database, storageRef };
