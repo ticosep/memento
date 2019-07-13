@@ -16907,214 +16907,6 @@ cr.plugins_.Rex_FrameMessage = function(runtime)
 }());
 ;
 ;
-cr.plugins_.Rex_Video = function(runtime)
-{
-	this.runtime = runtime;
-};
-(function ()
-{
-	var pluginProto = cr.plugins_.Rex_Video.prototype;
-	pluginProto.Type = function(plugin)
-	{
-		this.plugin = plugin;
-		this.runtime = plugin.runtime;
-	};
-	var typeProto = pluginProto.Type.prototype;
-	typeProto.onCreate = function()
-	{
-	};
-	pluginProto.Instance = function(type)
-	{
-		this.type = type;
-		this.runtime = type.runtime;
-	};
-	var instanceProto = pluginProto.Instance.prototype;
-	instanceProto.onCreate = function()
-	{
-		if (this.runtime.isDomFree)
-			return;
-        this.elem = document.createElement("video");
-        var source = document.createElement('source');
-        this.elem.appendChild(source);
-        source.src = this.properties[0];
-        source = document.createElement('source');
-        this.elem.appendChild(source);
-        source.src = this.properties[1];
-        source = document.createElement('source');
-        this.elem.appendChild(source);
-        source.src = this.properties[2];
-        this.elem.poster = this.properties[3];
-        this.elem.autoplay = (this.properties[4]==1);
-        this.elem.controls = (this.properties[5]==1);
-        this.elem.preload = ["auto","metadata","none"][this.properties[6]];
-        this.elem.loop = (this.properties[7]==1);
-        this.elem.muted = (this.properties[8]==1);
-        this.elem.id = this.properties[9];
-        jQuery(this.elem).appendTo(this.runtime.canvasdiv ? this.runtime.canvasdiv : "body");
-        this._pre_ended = false;
-        this._checked_is_playing = false;
-		this.updatePosition();
-		this.runtime.tickMe(this);
-	};
-	instanceProto.onDestroy = function ()
-	{
-		if (this.runtime.isDomFree)
-			return;
-		jQuery(this.elem).remove();
-		this.elem = null;
-	};
-	instanceProto.tick = function ()
-	{
-		this.updatePosition();
-        this.check_ended();
-        this.check_playing();
-	};
-	instanceProto.updatePosition = function ()
-	{
-		var left = this.layer.layerToCanvas(this.x, this.y, true);
-		var top = this.layer.layerToCanvas(this.x, this.y, false);
-		var right = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, true);
-		var bottom = this.layer.layerToCanvas(this.x + this.width, this.y + this.height, false);
-		if (!this.visible || right <= 0 || bottom <= 0 || left >= this.runtime.width || top >= this.runtime.height)
-		{
-			jQuery(this.elem).hide();
-			return;
-		}
-		if (left < 1)
-			left = 1;
-		if (top < 1)
-			top = 1;
-		if (right >= this.runtime.width)
-			right = this.runtime.width - 1;
-		if (bottom >= this.runtime.height)
-			bottom = this.runtime.height - 1;
-		jQuery(this.elem).show();
-		var offx = left + jQuery(this.runtime.canvas).offset().left;
-		var offy = top + jQuery(this.runtime.canvas).offset().top;
-		jQuery(this.elem).offset({left: offx, top: offy});
-		jQuery(this.elem).width(right - left);
-		jQuery(this.elem).height(bottom - top);
-	};
-	instanceProto.draw = function(ctx)
-	{
-	};
-	instanceProto.drawGL = function(glw)
-	{
-	};
-	instanceProto.check_ended = function ()
-	{
-        if (!this._pre_ended && this.elem.ended)
-        {
-            this._checked_is_playing = false;
-            this.runtime.trigger(cr.plugins_.Rex_Video.prototype.cnds.OnEnded, this);
-		}
-        this._pre_ended = this.elem.ended;
-	};
-	instanceProto.check_playing = function(){
-		if((!this._checked_is_playing) &&
-		   (this.elem.currentTime != this.elem.initialTime))
-		{
-			this._checked_is_playing = true;
-			this.runtime.trigger(cr.plugins_.Rex_Video.prototype.cnds.OnPlay, this);
-		}
-	}
-	function Cnds() {};
-	pluginProto.cnds = new Cnds();
-	Cnds.prototype.OnEnded = function ()
-	{
-		return true;
-	};
-	Cnds.prototype.IsEnded = function ()
-	{
-		return this.elem.ended;
-	};
-	Cnds.prototype.OnPlay = function ()
-	{
-		return true;
-	};
-	function Acts() {};
-	pluginProto.acts = new Acts();
-	Acts.prototype.SetSource = function (src)
-	{
-		this.elem.src = src;
-	};
-	Acts.prototype.Play = function ()
-	{
-		this.elem.play();
-	};
-	Acts.prototype.Stop = function ()
-	{
-		this.elem.pause();
-		this.elem.initialTime = 0;
-		this.elem.currentTime = 0;
-		this._checked_is_playing = false;
-	};
-	Acts.prototype.Pause = function ()
-	{
-		this._checked_is_playing = false;
-		this.elem.pause();
-	};
-	Acts.prototype.SetControls = function (is_enable)
-	{
-		this.elem.controls = (is_enable==1);
-	};
-	Acts.prototype.SetVolume = function (volume)
-	{
-		this.elem.volume = cr.clamp(volume, 0, 1);
-	};
-	Acts.prototype.SetPoster = function (poster)
-	{
-		this.elem.poster = poster;
-	};
-	Acts.prototype.SetLoop = function (is_enable)
-	{
-		this.elem.loop = (is_enable==1);
-	};
-	Acts.prototype.SetMuted = function (is_enable)
-	{
-		this.elem.muted = (is_enable==1);
-	};
-	Acts.prototype.SetAutoplay = function (is_enable)
-	{
-		this.elem.autoplay = (is_enable==1);
-	};
-	Acts.prototype.SetVisible = function (vis)
-	{
-		this.visible = (vis !== 0);
-	};
-	function Exps() {};
-	pluginProto.exps = new Exps();
-	Exps.prototype.CurrentTime = function (ret)
-	{
-		ret.set_float(this.elem.currentTime);
-	};
-	Exps.prototype.IsPaused = function (ret)
-	{
-		ret.set_int(this.elem.paused);
-	};
-	Exps.prototype.IsMuted = function (ret)
-	{
-		ret.set_int(this.elem.muted);
-	};
-	Exps.prototype.Volume = function (ret)
-	{
-		ret.set_float(this.elem.volume);
-	};
-	Exps.prototype.ReadyState = function (ret)
-	{
-		ret.set_int(this.elem.readyState);
-	};
-	Exps.prototype.SourceHeight = function (ret)
-	{
-		ret.set_float(this.elem.videoHeight);
-	};
-	Exps.prototype.SourceWidth = function (ret)
-	{
-		ret.set_float(this.elem.videoWidth);
-	};
-}());
-;
-;
 cr.plugins_.Sprite = function(runtime)
 {
 	this.runtime = runtime;
@@ -19000,163 +18792,479 @@ cr.plugins_.Text = function(runtime)
 }());
 ;
 ;
-cr.behaviors.Anchor = function(runtime)
+cr.plugins_.video = function(runtime)
 {
 	this.runtime = runtime;
 };
 (function ()
 {
-	var behaviorProto = cr.behaviors.Anchor.prototype;
-	behaviorProto.Type = function(behavior, objtype)
+	var pluginProto = cr.plugins_.video.prototype;
+	pluginProto.Type = function(plugin)
 	{
-		this.behavior = behavior;
-		this.objtype = objtype;
-		this.runtime = behavior.runtime;
+		this.plugin = plugin;
+		this.runtime = plugin.runtime;
 	};
-	var behtypeProto = behaviorProto.Type.prototype;
-	behtypeProto.onCreate = function()
+	var typeProto = pluginProto.Type.prototype;
+	typeProto.onCreate = function()
 	{
 	};
-	behaviorProto.Instance = function(type, inst)
+	typeProto.onLostWebGLContext = function ()
+	{
+		if (this.is_family)
+			return;
+		var i, len, inst;
+		for (i = 0, len = this.instances.length; i < len; ++i)
+		{
+			inst = this.instances[i];
+			inst.webGL_texture = null;		// will lazy create again on next draw
+		}
+	};
+	var tmpVideo = document.createElement("video");
+	var can_play_webm = !!tmpVideo.canPlayType("video/webm");
+	var can_play_ogv = !!tmpVideo.canPlayType("video/ogg");
+	var can_play_mp4 = !!tmpVideo.canPlayType("video/mp4");
+	tmpVideo = null;
+	function isVideoPlaying(v)
+	{
+		return v && !v.paused && !v.ended && v.currentTime > 0;
+	};
+	pluginProto.Instance = function(type)
 	{
 		this.type = type;
-		this.behavior = type.behavior;
-		this.inst = inst;				// associated object instance to modify
 		this.runtime = type.runtime;
 	};
-	var behinstProto = behaviorProto.Instance.prototype;
-	behinstProto.onCreate = function()
+	var instanceProto = pluginProto.Instance.prototype;
+	var playOnNextInput = [];
+	function playQueued()
 	{
-		this.anch_left = this.properties[0];		// 0 = left, 1 = right, 2 = none
-		this.anch_top = this.properties[1];			// 0 = top, 1 = bottom, 2 = none
-		this.anch_right = this.properties[2];		// 0 = none, 1 = right
-		this.anch_bottom = this.properties[3];		// 0 = none, 1 = bottom
-		this.inst.update_bbox();
-		this.xleft = this.inst.bbox.left;
-		this.ytop = this.inst.bbox.top;
-		this.xright = this.runtime.original_width - this.inst.bbox.left;
-		this.ybottom = this.runtime.original_height - this.inst.bbox.top;
-		this.rdiff = this.runtime.original_width - this.inst.bbox.right;
-		this.bdiff = this.runtime.original_height - this.inst.bbox.bottom;
-		this.enabled = (this.properties[4] !== 0);
+		var tryPlay = playOnNextInput.slice(0);
+		cr.clearArray(playOnNextInput);
+		var i, len, playRet, v;
+		for (i = 0, len = tryPlay.length; i < len; ++i)
+		{
+			v = tryPlay[i];
+			playRet = v.play();
+			if (playRet)
+			{
+				playRet.catch(function (err)
+				{
+					addVideoToPlayOnNextInput(v);
+				});
+			}
+		}
 	};
-	behinstProto.saveToJSON = function ()
+	document.addEventListener("touchend", playQueued, true);
+	document.addEventListener("click", playQueued, true);
+	document.addEventListener("keydown", playQueued, true);
+	function addVideoToPlayOnNextInput(v)
+	{
+		var i = playOnNextInput.indexOf(v);
+		if (i === -1)
+			playOnNextInput.push(v);
+	};
+	instanceProto.queueVideoPlay = function (add)
+	{
+		if (!this.video)
+			return;
+		var i;
+		var self = this;
+		if (!add)
+		{
+			i = playOnNextInput.indexOf(this.video);
+			if (i >= 0)
+				playOnNextInput.splice(i, 1);
+			return;
+		}
+		var playRet;
+		try {
+			playRet = this.video.play();
+		}
+		catch (err)
+		{
+			addVideoToPlayOnNextInput(this.video);
+			return;
+		}
+		if (playRet)		// Promise was returned
+		{
+			playRet.catch(function (err)
+			{
+				if (self.video)
+					addVideoToPlayOnNextInput(self.video);
+			});
+		}
+		else if (this.useNextTouchWorkaround && !this.runtime.isInUserInputEvent)
+		{
+			addVideoToPlayOnNextInput(this.video);
+		}
+	};
+	instanceProto.onCreate = function()
+	{
+		this.webm_src = this.properties[0];
+		this.ogv_src = this.properties[1];
+		this.mp4_src = this.properties[2];
+		this.autoplay = this.properties[3];					// 0 = no, 1 = preload, 2 = yes
+		this.playInBackground = (this.properties[4] !== 0);	// 0 = no, 1 = yes
+		this.videoWasPlayingOnSuspend = false;
+		this.video = document.createElement("video");
+		this.video.crossOrigin = "anonymous";
+		this.video["playsInline"] = true;					// ensure inline playback on iOS
+		this.webGL_texture = null;
+		this.currentTrigger = -1;
+		this.viaCanvas = null;
+		this.viaCtx = null;
+		this.useViaCanvasWorkaround = this.runtime.isIE || this.runtime.isMicrosoftEdge;
+		var self = this;
+		this.video.addEventListener("canplay", function () {
+			self.currentTrigger = 0;
+			self.runtime.trigger(cr.plugins_.video.prototype.cnds.OnPlaybackEvent, self);
+		});
+		this.video.addEventListener("canplaythrough", function () {
+			self.currentTrigger = 1;
+			self.runtime.trigger(cr.plugins_.video.prototype.cnds.OnPlaybackEvent, self);
+		});
+		this.video.addEventListener("ended", function () {
+			self.currentTrigger = 2;
+			self.runtime.trigger(cr.plugins_.video.prototype.cnds.OnPlaybackEvent, self);
+		});
+		this.video.addEventListener("error", function () {
+			self.currentTrigger = 3;
+			self.runtime.trigger(cr.plugins_.video.prototype.cnds.OnPlaybackEvent, self);
+		});
+		this.video.addEventListener("loadstart", function () {
+			self.currentTrigger = 4;
+			self.runtime.trigger(cr.plugins_.video.prototype.cnds.OnPlaybackEvent, self);
+		});
+		this.video.addEventListener("playing", function () {
+			self.currentTrigger = 5;
+			self.runtime.trigger(cr.plugins_.video.prototype.cnds.OnPlaybackEvent, self);
+		});
+		this.video.addEventListener("pause", function () {
+			self.currentTrigger = 6;
+			self.runtime.trigger(cr.plugins_.video.prototype.cnds.OnPlaybackEvent, self);
+		});
+		this.video.addEventListener("stalled", function () {
+			self.currentTrigger = 7;
+			self.runtime.trigger(cr.plugins_.video.prototype.cnds.OnPlaybackEvent, self);
+		});
+		this.useNextTouchWorkaround = ((this.runtime.isiOS || (this.runtime.isAndroid && (this.runtime.isChrome || this.runtime.isAndroidStockBrowser))) && !this.runtime.isCrosswalk && !this.runtime.isDomFree);
+		if (this.autoplay === 0)
+		{
+			this.video.autoplay = false;
+			this.video.preload = "none";
+		}
+		else if (this.autoplay === 1)
+		{
+			this.video.autoplay = false;
+			this.video.preload = "auto";
+		}
+		else if (this.autoplay === 2)
+		{
+			this.video.autoplay = true;
+		}
+		this.setSource(this.webm_src, this.ogv_src, this.mp4_src);
+		if (this.autoplay === 2)
+			this.queueVideoPlay(true);
+		this.visible = (this.properties[5] !== 0);
+		this.runtime.tickMe(this);
+		if (!this.recycled)
+		{
+			var self = this;
+			this.runtime.addSuspendCallback(function(s)
+			{
+				self.onSuspend(s);
+			});
+		}
+	};
+	instanceProto.onSuspend = function (s)
+	{
+		if (this.playInBackground || !this.video)
+			return;
+		if (s)
+		{
+			if (isVideoPlaying(this.video))
+			{
+				this.queueVideoPlay(false);
+				this.video.pause();
+				this.videoWasPlayingOnSuspend = true;
+			}
+		}
+		else
+		{
+			if (this.videoWasPlayingOnSuspend)
+			{
+				this.queueVideoPlay(true);
+				this.videoWasPlayingOnSuspend = false;
+			}
+		}
+	};
+	instanceProto.setSource = function (webm_src, ogv_src, mp4_src)
+	{
+		var self = this;
+		var useSrc = "";
+		if (can_play_webm && webm_src)
+			useSrc = webm_src;
+		else if (can_play_ogv && ogv_src)
+			useSrc = ogv_src;
+		else if (can_play_mp4 && mp4_src)
+			useSrc = mp4_src;
+		if (useSrc)
+		{
+			if (!this.runtime.isAbsoluteUrl(useSrc))
+				useSrc = useSrc.toLowerCase();
+			this.video.src = useSrc;
+		}
+		if (this.runtime.glwrap && this.webGL_texture)
+		{
+			this.runtime.glwrap.deleteTexture(this.webGL_texture);
+			this.webGL_texture = null;
+		}
+		this.viaCanvas = null;
+		this.viaCtx = null;
+	};
+	instanceProto.onDestroy = function ()
+	{
+		this.queueVideoPlay(false);
+		if (isVideoPlaying(this.video))
+			this.video.pause();		// stop playback
+		if (this.runtime.glwrap && this.webGL_texture)
+		{
+			this.runtime.glwrap.deleteTexture(this.webGL_texture);
+			this.webGL_texture = null;
+		}
+		this.viaCanvas = null;
+		this.viaCtx = null;
+		this.video.src = "";		// memory is not always cleaned up unless we drop the src!
+		this.video = null;
+	};
+	instanceProto.tick = function ()
+	{
+		if (isVideoPlaying(this.video))
+			this.runtime.redraw = true;
+	};
+	instanceProto.saveToJSON = function ()
 	{
 		return {
-			"xleft": this.xleft,
-			"ytop": this.ytop,
-			"xright": this.xright,
-			"ybottom": this.ybottom,
-			"rdiff": this.rdiff,
-			"bdiff": this.bdiff,
-			"enabled": this.enabled
+			"s": (this.video.src || ""),
+			"p": !!isVideoPlaying(this.video),
+			"t": (this.video.currentTime || 0)
 		};
 	};
-	behinstProto.loadFromJSON = function (o)
+	instanceProto.loadFromJSON = function (o)
 	{
-		this.xleft = o["xleft"];
-		this.ytop = o["ytop"];
-		this.xright = o["xright"];
-		this.ybottom = o["ybottom"];
-		this.rdiff = o["rdiff"];
-		this.bdiff = o["bdiff"];
-		this.enabled = o["enabled"];
-	};
-	behinstProto.tick = function ()
-	{
-		if (!this.enabled)
+		if (!o || typeof o["s"] === "undefined")
 			return;
-		var n;
-		var layer = this.inst.layer;
-		var inst = this.inst;
-		var bbox = this.inst.bbox;
-		if (this.anch_left === 0)
-		{
-			inst.update_bbox();
-			n = (layer.viewLeft + this.xleft) - bbox.left;
-			if (n !== 0)
-			{
-				inst.x += n;
-				inst.set_bbox_changed();
-			}
+		var src = o["s"];
+		this.setSource(src, src, src);
+		try {
+			this.video.currentTime = o["t"];
 		}
-		else if (this.anch_left === 1)
+		catch (e) {};		// ignore if throws
+		if (o["p"])			// is playing
 		{
-			inst.update_bbox();
-			n = (layer.viewRight - this.xright) - bbox.left;
-			if (n !== 0)
-			{
-				inst.x += n;
-				inst.set_bbox_changed();
-			}
+			this.queueVideoPlay(true);
 		}
-		if (this.anch_top === 0)
+		else
 		{
-			inst.update_bbox();
-			n = (layer.viewTop + this.ytop) - bbox.top;
-			if (n !== 0)
-			{
-				inst.y += n;
-				inst.set_bbox_changed();
-			}
+			this.queueVideoPlay(false);
+			this.video.pause();
 		}
-		else if (this.anch_top === 1)
+	};
+	instanceProto.draw = function (ctx)
+	{
+		if (!this.video)
+			return;		// no video to draw
+		var videoWidth = this.video.videoWidth;
+		var videoHeight = this.video.videoHeight;
+		if (videoWidth <= 0 || videoHeight <= 0)
+			return;		// not yet loaded metadata
+		var videoAspect = videoWidth / videoHeight;
+		var dispWidth = this.width;
+		var dispHeight = this.height;
+		var dispAspect = dispWidth / dispHeight;
+		var offx = 0;
+		var offy = 0;
+		var drawWidth = 0;
+		var drawHeight = 0;
+		if (dispAspect > videoAspect)
 		{
-			inst.update_bbox();
-			n = (layer.viewBottom - this.ybottom) - bbox.top;
-			if (n !== 0)
-			{
-				inst.y += n;
-				inst.set_bbox_changed();
-			}
+			drawWidth = dispHeight * videoAspect;
+			drawHeight = dispHeight;
+			offx = Math.floor((dispWidth - drawWidth) / 2);
+			if (offx < 0)
+				offx = 0;
 		}
-		if (this.anch_right === 1)
+		else
 		{
-			inst.update_bbox();
-			n = (layer.viewRight - this.rdiff) - bbox.right;
-			if (n !== 0)
-			{
-				inst.width += n;
-				if (inst.width < 0)
-					inst.width = 0;
-				inst.set_bbox_changed();
-			}
+			drawWidth = dispWidth;
+			drawHeight = dispWidth / videoAspect;
+			offy = Math.floor((dispHeight - drawHeight) / 2);
+			if (offy < 0)
+				offy = 0;
 		}
-		if (this.anch_bottom === 1)
+		ctx.globalAlpha = this.opacity;
+		ctx.drawImage(this.video, this.x + offx, this.y + offy, drawWidth, drawHeight);
+	};
+	var tmpRect = new cr.rect(0, 0, 0, 0);
+	var tmpQuad = new cr.quad();
+	instanceProto.drawGL = function (glw)
+	{
+		if (!this.video)
+			return;		// no video to draw
+		var videoWidth = this.video.videoWidth;
+		var videoHeight = this.video.videoHeight;
+		if (videoWidth <= 0 || videoHeight <= 0)
+			return;		// not yet loaded metadata
+		var videoAspect = videoWidth / videoHeight;
+		var dispWidth = this.width;
+		var dispHeight = this.height;
+		var dispAspect = dispWidth / dispHeight;
+		var offx = 0;
+		var offy = 0;
+		var drawWidth = 0;
+		var drawHeight = 0;
+		if (dispAspect > videoAspect)
 		{
-			inst.update_bbox();
-			n = (layer.viewBottom - this.bdiff) - bbox.bottom;
-			if (n !== 0)
-			{
-				inst.height += n;
-				if (inst.height < 0)
-					inst.height = 0;
-				inst.set_bbox_changed();
-			}
+			drawWidth = dispHeight * videoAspect;
+			drawHeight = dispHeight;
+			offx = Math.floor((dispWidth - drawWidth) / 2);
+			if (offx < 0)
+				offx = 0;
 		}
+		else
+		{
+			drawWidth = dispWidth;
+			drawHeight = dispWidth / videoAspect;
+			offy = Math.floor((dispHeight - drawHeight) / 2);
+			if (offy < 0)
+				offy = 0;
+		}
+		if (!this.webGL_texture)
+		{
+			this.webGL_texture = glw.createEmptyTexture(videoWidth, videoHeight, this.runtime.linearSampling, false, false);
+		}
+		if (this.useViaCanvasWorkaround)
+		{
+			if (!this.viaCtx)
+			{
+				this.viaCanvas = document.createElement("canvas");
+				this.viaCanvas.width = videoWidth;
+				this.viaCanvas.height = videoHeight;
+				this.viaCtx = this.viaCanvas.getContext("2d");
+			}
+			this.viaCtx.drawImage(this.video, 0, 0);
+			glw.videoToTexture(this.viaCanvas, this.webGL_texture);
+		}
+		else
+		{
+			glw.videoToTexture(this.video, this.webGL_texture);
+		}
+		glw.setBlend(this.srcBlend, this.destBlend);
+		glw.setOpacity(this.opacity);
+		glw.setTexture(this.webGL_texture);
+		tmpRect.set(this.x + offx, this.y + offy, this.x + offx + drawWidth, this.y + offy + drawHeight);
+		tmpQuad.set_from_rect(tmpRect);
+		glw.quad(tmpQuad.tlx, tmpQuad.tly, tmpQuad.trx, tmpQuad.try_, tmpQuad.brx, tmpQuad.bry, tmpQuad.blx, tmpQuad.bly);
+	};
+	function dbToLinear_nocap(x)
+	{
+		return Math.pow(10, x / 20);
+	};
+	function linearToDb_nocap(x)
+	{
+		return (Math.log(x) / Math.log(10)) * 20;
+	};
+	function dbToLinear(x)
+	{
+		var v = dbToLinear_nocap(x);
+		if (v < 0)
+			v = 0;
+		if (v > 1)
+			v = 1;
+		return v;
+	};
+	function linearToDb(x)
+	{
+		if (x < 0)
+			x = 0;
+		if (x > 1)
+			x = 1;
+		return linearToDb_nocap(x);
 	};
 	function Cnds() {};
-	behaviorProto.cnds = new Cnds();
-	function Acts() {};
-	Acts.prototype.SetEnabled = function (e)
+	Cnds.prototype.IsPlaying = function ()
 	{
-		if (this.enabled && e === 0)
-			this.enabled = false;
-		else if (!this.enabled && e !== 0)
+		return isVideoPlaying(this.video);
+	};
+	Cnds.prototype.IsPaused = function ()
+	{
+		return this.video.paused;
+	};
+	Cnds.prototype.HasEnded = function ()
+	{
+		return this.video.ended;
+	};
+	Cnds.prototype.IsMuted = function ()
+	{
+		return this.video.muted;
+	};
+	Cnds.prototype.OnPlaybackEvent = function (trig)
+	{
+		return this.currentTrigger === trig;
+	};
+	pluginProto.cnds = new Cnds();
+	function Acts() {};
+	Acts.prototype.SetSource = function (webm_src, ogv_src, mp4_src)
+	{
+		this.setSource(webm_src, ogv_src, mp4_src);
+		this.video.load();
+	};
+	Acts.prototype.SetPlaybackTime = function (s)
+	{
+		try {
+			this.video.currentTime = s;
+		}
+		catch (e)
 		{
-			this.inst.update_bbox();
-			this.xleft = this.inst.bbox.left;
-			this.ytop = this.inst.bbox.top;
-			this.xright = this.runtime.original_width - this.inst.bbox.left;
-			this.ybottom = this.runtime.original_height - this.inst.bbox.top;
-			this.rdiff = this.runtime.original_width - this.inst.bbox.right;
-			this.bdiff = this.runtime.original_height - this.inst.bbox.bottom;
-			this.enabled = true;
+			if (console && console.error)
+				console.error("Exception setting video playback time: ", e);
 		}
 	};
-	behaviorProto.acts = new Acts();
+	Acts.prototype.SetLooping = function (l)
+	{
+		this.video.loop = (l !== 0);
+	};
+	Acts.prototype.SetMuted = function (m)
+	{
+		this.video.muted = (m !== 0);
+	};
+	Acts.prototype.SetVolume = function (v)
+	{
+		this.video.volume = dbToLinear(v);
+	};
+	Acts.prototype.Pause = function ()
+	{
+		this.queueVideoPlay(false);		// remove any play-on-next-touch queue, since we don't want it to be playing any more
+		this.video.pause();
+	};
+	Acts.prototype.Play = function ()
+	{
+		this.queueVideoPlay(true);
+	};
+	pluginProto.acts = new Acts();
 	function Exps() {};
-	behaviorProto.exps = new Exps();
+	Exps.prototype.PlaybackTime = function (ret)
+	{
+		ret.set_float(this.video.currentTime || 0);
+	};
+	Exps.prototype.Duration = function (ret)
+	{
+		ret.set_float(this.video.duration || 0);
+	};
+	Exps.prototype.Volume = function (ret)
+	{
+		ret.set_float(linearToDb(this.video.volume || 0));
+	};
+	pluginProto.exps = new Exps();
 }());
 ;
 ;
@@ -19558,439 +19666,6 @@ cr.behaviors.DragnDrop = function(runtime)
 }());
 ;
 ;
-cr.behaviors.EightDir = function(runtime)
-{
-	this.runtime = runtime;
-};
-(function ()
-{
-	var behaviorProto = cr.behaviors.EightDir.prototype;
-	behaviorProto.Type = function(behavior, objtype)
-	{
-		this.behavior = behavior;
-		this.objtype = objtype;
-		this.runtime = behavior.runtime;
-	};
-	var behtypeProto = behaviorProto.Type.prototype;
-	behtypeProto.onCreate = function()
-	{
-	};
-	behaviorProto.Instance = function(type, inst)
-	{
-		this.type = type;
-		this.behavior = type.behavior;
-		this.inst = inst;				// associated object instance to modify
-		this.runtime = type.runtime;
-		this.upkey = false;
-		this.downkey = false;
-		this.leftkey = false;
-		this.rightkey = false;
-		this.ignoreInput = false;
-		this.simup = false;
-		this.simdown = false;
-		this.simleft = false;
-		this.simright = false;
-		this.lastuptick = -1;
-		this.lastdowntick = -1;
-		this.lastlefttick = -1;
-		this.lastrighttick = -1;
-		this.dx = 0;
-		this.dy = 0;
-	};
-	var behinstProto = behaviorProto.Instance.prototype;
-	behinstProto.onCreate = function()
-	{
-		this.maxspeed = this.properties[0];
-		this.acc = this.properties[1];
-		this.dec = this.properties[2];
-		this.directions = this.properties[3];	// 0=Up & down, 1=Left & right, 2=4 directions, 3=8 directions"
-		this.angleMode = this.properties[4];	// 0=No,1=90-degree intervals, 2=45-degree intervals, 3=360 degree (smooth)
-		this.defaultControls = (this.properties[5] === 1);	// 0=no, 1=yes
-		this.enabled = (this.properties[6] !== 0);
-		if (this.defaultControls && !this.runtime.isDomFree)
-		{
-			jQuery(document).keydown(
-				(function (self) {
-					return function(info) {
-						self.onKeyDown(info);
-					};
-				})(this)
-			);
-			jQuery(document).keyup(
-				(function (self) {
-					return function(info) {
-						self.onKeyUp(info);
-					};
-				})(this)
-			);
-		}
-	};
-	behinstProto.saveToJSON = function ()
-	{
-		return {
-			"dx": this.dx,
-			"dy": this.dy,
-			"enabled": this.enabled,
-			"maxspeed": this.maxspeed,
-			"acc": this.acc,
-			"dec": this.dec,
-			"ignoreInput": this.ignoreInput
-		};
-	};
-	behinstProto.loadFromJSON = function (o)
-	{
-		this.dx = o["dx"];
-		this.dy = o["dy"];
-		this.enabled = o["enabled"];
-		this.maxspeed = o["maxspeed"];
-		this.acc = o["acc"];
-		this.dec = o["dec"];
-		this.ignoreInput = o["ignoreInput"];
-		this.upkey = false;
-		this.downkey = false;
-		this.leftkey = false;
-		this.rightkey = false;
-		this.simup = false;
-		this.simdown = false;
-		this.simleft = false;
-		this.simright = false;
-		this.lastuptick = -1;
-		this.lastdowntick = -1;
-		this.lastlefttick = -1;
-		this.lastrighttick = -1;
-	};
-	behinstProto.onKeyDown = function (info)
-	{
-		var tickcount = this.runtime.tickcount;
-		switch (info.which) {
-		case 37:	// left
-			info.preventDefault();
-			if (this.lastlefttick < tickcount)
-				this.leftkey = true;
-			break;
-		case 38:	// up
-			info.preventDefault();
-			if (this.lastuptick < tickcount)
-				this.upkey = true;
-			break;
-		case 39:	// right
-			info.preventDefault();
-			if (this.lastrighttick < tickcount)
-				this.rightkey = true;
-			break;
-		case 40:	// down
-			info.preventDefault();
-			if (this.lastdowntick < tickcount)
-				this.downkey = true;
-			break;
-		}
-	};
-	behinstProto.onKeyUp = function (info)
-	{
-		var tickcount = this.runtime.tickcount;
-		switch (info.which) {
-		case 37:	// left
-			info.preventDefault();
-			this.leftkey = false;
-			this.lastlefttick = tickcount;
-			break;
-		case 38:	// up
-			info.preventDefault();
-			this.upkey = false;
-			this.lastuptick = tickcount;
-			break;
-		case 39:	// right
-			info.preventDefault();
-			this.rightkey = false;
-			this.lastrighttick = tickcount;
-			break;
-		case 40:	// down
-			info.preventDefault();
-			this.downkey = false;
-			this.lastdowntick = tickcount;
-			break;
-		}
-	};
-	behinstProto.onWindowBlur = function ()
-	{
-		this.upkey = false;
-		this.downkey = false;
-		this.leftkey = false;
-		this.rightkey = false;
-	};
-	behinstProto.tick = function ()
-	{
-		var dt = this.runtime.getDt(this.inst);
-		var left = this.leftkey || this.simleft;
-		var right = this.rightkey || this.simright;
-		var up = this.upkey || this.simup;
-		var down = this.downkey || this.simdown;
-		this.simleft = false;
-		this.simright = false;
-		this.simup = false;
-		this.simdown = false;
-		if (!this.enabled)
-			return;
-		var collobj = this.runtime.testOverlapSolid(this.inst);
-		if (collobj)
-		{
-			this.runtime.registerCollision(this.inst, collobj);
-			if (!this.runtime.pushOutSolidNearest(this.inst))
-				return;		// must be stuck in solid
-		}
-		if (this.ignoreInput)
-		{
-			left = false;
-			right = false;
-			up = false;
-			down = false;
-		}
-		if (this.directions === 0)
-		{
-			left = false;
-			right = false;
-		}
-		else if (this.directions === 1)
-		{
-			up = false;
-			down = false;
-		}
-		if (this.directions === 2 && (up || down))
-		{
-			left = false;
-			right = false;
-		}
-		if (left == right)	// both up or both down
-		{
-			if (this.dx < 0)
-			{
-				this.dx += this.dec * dt;
-				if (this.dx > 0)
-					this.dx = 0;
-			}
-			else if (this.dx > 0)
-			{
-				this.dx -= this.dec * dt;
-				if (this.dx < 0)
-					this.dx = 0;
-			}
-		}
-		if (up == down)
-		{
-			if (this.dy < 0)
-			{
-				this.dy += this.dec * dt;
-				if (this.dy > 0)
-					this.dy = 0;
-			}
-			else if (this.dy > 0)
-			{
-				this.dy -= this.dec * dt;
-				if (this.dy < 0)
-					this.dy = 0;
-			}
-		}
-		if (left && !right)
-		{
-			if (this.dx > 0)
-				this.dx -= (this.acc + this.dec) * dt;
-			else
-				this.dx -= this.acc * dt;
-		}
-		if (right && !left)
-		{
-			if (this.dx < 0)
-				this.dx += (this.acc + this.dec) * dt;
-			else
-				this.dx += this.acc * dt;
-		}
-		if (up && !down)
-		{
-			if (this.dy > 0)
-				this.dy -= (this.acc + this.dec) * dt;
-			else
-				this.dy -= this.acc * dt;
-		}
-		if (down && !up)
-		{
-			if (this.dy < 0)
-				this.dy += (this.acc + this.dec) * dt;
-			else
-				this.dy += this.acc * dt;
-		}
-		var ax, ay;
-		if (this.dx !== 0 || this.dy !== 0)
-		{
-			var speed = Math.sqrt(this.dx * this.dx + this.dy * this.dy);
-			if (speed > this.maxspeed)
-			{
-				var a = Math.atan2(this.dy, this.dx);
-				this.dx = this.maxspeed * Math.cos(a);
-				this.dy = this.maxspeed * Math.sin(a);
-			}
-			var oldx = this.inst.x;
-			var oldy = this.inst.y;
-			var oldangle = this.inst.angle;
-			this.inst.x += this.dx * dt;
-			this.inst.set_bbox_changed();
-			collobj = this.runtime.testOverlapSolid(this.inst);
-			if (collobj)
-			{
-				if (!this.runtime.pushOutSolid(this.inst, (this.dx < 0 ? 1 : -1), 0, Math.abs(Math.floor(this.dx * dt))))
-				{
-					this.inst.x = oldx;
-				}
-				this.dx = 0;
-				this.inst.set_bbox_changed();
-				this.runtime.registerCollision(this.inst, collobj);
-			}
-			this.inst.y += this.dy * dt;
-			this.inst.set_bbox_changed();
-			collobj = this.runtime.testOverlapSolid(this.inst);
-			if (collobj)
-			{
-				if (!this.runtime.pushOutSolid(this.inst, 0, (this.dy < 0 ? 1 : -1), Math.abs(Math.floor(this.dy * dt))))
-				{
-					this.inst.y = oldy;
-				}
-				this.dy = 0;
-				this.inst.set_bbox_changed();
-				this.runtime.registerCollision(this.inst, collobj);
-			}
-			ax = cr.round6dp(this.dx);
-			ay = cr.round6dp(this.dy);
-			if ((ax !== 0 || ay !== 0) && this.inst.type.plugin.is_rotatable)
-			{
-				if (this.angleMode === 1)	// 90 degree intervals
-					this.inst.angle = cr.to_clamped_radians(Math.round(cr.to_degrees(Math.atan2(ay, ax)) / 90.0) * 90.0);
-				else if (this.angleMode === 2)	// 45 degree intervals
-					this.inst.angle = cr.to_clamped_radians(Math.round(cr.to_degrees(Math.atan2(ay, ax)) / 45.0) * 45.0);
-				else if (this.angleMode === 3)	// 360 degree
-					this.inst.angle = Math.atan2(ay, ax);
-			}
-			this.inst.set_bbox_changed();
-			if (this.inst.angle != oldangle)
-			{
-				collobj = this.runtime.testOverlapSolid(this.inst);
-				if (collobj)
-				{
-					this.inst.angle = oldangle;
-					this.inst.set_bbox_changed();
-					this.runtime.registerCollision(this.inst, collobj);
-				}
-			}
-		}
-	};
-	function Cnds() {};
-	Cnds.prototype.IsMoving = function ()
-	{
-		var speed = Math.sqrt(this.dx * this.dx + this.dy * this.dy);
-		return speed > 1e-10;
-	};
-	Cnds.prototype.CompareSpeed = function (cmp, s)
-	{
-		var speed = Math.sqrt(this.dx * this.dx + this.dy * this.dy);
-		return cr.do_cmp(speed, cmp, s);
-	};
-	behaviorProto.cnds = new Cnds();
-	function Acts() {};
-	Acts.prototype.Stop = function ()
-	{
-		this.dx = 0;
-		this.dy = 0;
-	};
-	Acts.prototype.Reverse = function ()
-	{
-		this.dx *= -1;
-		this.dy *= -1;
-	};
-	Acts.prototype.SetIgnoreInput = function (ignoring)
-	{
-		this.ignoreInput = ignoring;
-	};
-	Acts.prototype.SetSpeed = function (speed)
-	{
-		if (speed < 0)
-			speed = 0;
-		if (speed > this.maxspeed)
-			speed = this.maxspeed;
-		var a = Math.atan2(this.dy, this.dx);
-		this.dx = speed * Math.cos(a);
-		this.dy = speed * Math.sin(a);
-	};
-	Acts.prototype.SetMaxSpeed = function (maxspeed)
-	{
-		this.maxspeed = maxspeed;
-		if (this.maxspeed < 0)
-			this.maxspeed = 0;
-	};
-	Acts.prototype.SetAcceleration = function (acc)
-	{
-		this.acc = acc;
-		if (this.acc < 0)
-			this.acc = 0;
-	};
-	Acts.prototype.SetDeceleration = function (dec)
-	{
-		this.dec = dec;
-		if (this.dec < 0)
-			this.dec = 0;
-	};
-	Acts.prototype.SimulateControl = function (ctrl)
-	{
-		switch (ctrl) {
-		case 0:		this.simleft = true;	break;
-		case 1:		this.simright = true;	break;
-		case 2:		this.simup = true;		break;
-		case 3:		this.simdown = true;	break;
-		}
-	};
-	Acts.prototype.SetEnabled = function (en)
-	{
-		this.enabled = (en === 1);
-	};
-	Acts.prototype.SetVectorX = function (x_)
-	{
-		this.dx = x_;
-	};
-	Acts.prototype.SetVectorY = function (y_)
-	{
-		this.dy = y_;
-	};
-	behaviorProto.acts = new Acts();
-	function Exps() {};
-	Exps.prototype.Speed = function (ret)
-	{
-		ret.set_float(Math.sqrt(this.dx * this.dx + this.dy * this.dy));
-	};
-	Exps.prototype.MaxSpeed = function (ret)
-	{
-		ret.set_float(this.maxspeed);
-	};
-	Exps.prototype.Acceleration = function (ret)
-	{
-		ret.set_float(this.acc);
-	};
-	Exps.prototype.Deceleration = function (ret)
-	{
-		ret.set_float(this.dec);
-	};
-	Exps.prototype.MovingAngle = function (ret)
-	{
-		ret.set_float(cr.to_degrees(Math.atan2(this.dy, this.dx)));
-	};
-	Exps.prototype.VectorX = function (ret)
-	{
-		ret.set_float(this.dx);
-	};
-	Exps.prototype.VectorY = function (ret)
-	{
-		ret.set_float(this.dy);
-	};
-	behaviorProto.exps = new Exps();
-}());
-;
-;
 cr.behaviors.bound = function(runtime)
 {
 	this.runtime = runtime;
@@ -20134,12 +19809,10 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.Sprite,
 	cr.plugins_.Text,
 	cr.plugins_.Rex_FrameMessage,
-	cr.plugins_.Rex_Video,
+	cr.plugins_.video,
 	cr.behaviors.DragnDrop,
-	cr.behaviors.Anchor,
 	cr.behaviors.bound,
 	cr.behaviors.solid,
-	cr.behaviors.EightDir,
 	cr.plugins_.Function.prototype.cnds.OnFunction,
 	cr.system_object.prototype.cnds.For,
 	cr.system_object.prototype.exps["int"],
@@ -20153,10 +19826,10 @@ cr.getObjectRefTable = function () { return [
 	cr.system_object.prototype.exps.viewportbottom,
 	cr.plugins_.Sprite.prototype.acts.SetWidth,
 	cr.system_object.prototype.exps.viewportright,
-	cr.plugins_.Rex_Video.prototype.acts.SetSource,
-	cr.plugins_.Rex_Video.prototype.acts.SetAutoplay,
-	cr.plugins_.Rex_Video.prototype.acts.SetHeight,
-	cr.plugins_.Rex_Video.prototype.acts.SetWidth,
+	cr.plugins_.Sprite.prototype.acts.SetVisible,
+	cr.plugins_.video.prototype.acts.SetSource,
+	cr.plugins_.video.prototype.acts.SetHeight,
+	cr.plugins_.video.prototype.acts.SetWidth,
 	cr.plugins_.Function.prototype.acts.CallFunction,
 	cr.plugins_.Rex_FrameMessage.prototype.cnds.OnFunction,
 	cr.plugins_.Rex_FrameMessage.prototype.cnds.OnReturn,
