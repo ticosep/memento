@@ -19666,6 +19666,170 @@ cr.behaviors.DragnDrop = function(runtime)
 }());
 ;
 ;
+cr.behaviors.Pin = function(runtime)
+{
+	this.runtime = runtime;
+};
+(function ()
+{
+	var behaviorProto = cr.behaviors.Pin.prototype;
+	behaviorProto.Type = function(behavior, objtype)
+	{
+		this.behavior = behavior;
+		this.objtype = objtype;
+		this.runtime = behavior.runtime;
+	};
+	var behtypeProto = behaviorProto.Type.prototype;
+	behtypeProto.onCreate = function()
+	{
+	};
+	behaviorProto.Instance = function(type, inst)
+	{
+		this.type = type;
+		this.behavior = type.behavior;
+		this.inst = inst;				// associated object instance to modify
+		this.runtime = type.runtime;
+	};
+	var behinstProto = behaviorProto.Instance.prototype;
+	behinstProto.onCreate = function()
+	{
+		this.pinObject = null;
+		this.pinObjectUid = -1;		// for loading
+		this.pinAngle = 0;
+		this.pinDist = 0;
+		this.myStartAngle = 0;
+		this.theirStartAngle = 0;
+		this.lastKnownAngle = 0;
+		this.mode = 0;				// 0 = position & angle; 1 = position; 2 = angle; 3 = rope; 4 = bar
+		var self = this;
+		if (!this.recycled)
+		{
+			this.myDestroyCallback = (function(inst) {
+													self.onInstanceDestroyed(inst);
+												});
+		}
+		this.runtime.addDestroyCallback(this.myDestroyCallback);
+	};
+	behinstProto.saveToJSON = function ()
+	{
+		return {
+			"uid": this.pinObject ? this.pinObject.uid : -1,
+			"pa": this.pinAngle,
+			"pd": this.pinDist,
+			"msa": this.myStartAngle,
+			"tsa": this.theirStartAngle,
+			"lka": this.lastKnownAngle,
+			"m": this.mode
+		};
+	};
+	behinstProto.loadFromJSON = function (o)
+	{
+		this.pinObjectUid = o["uid"];		// wait until afterLoad to look up
+		this.pinAngle = o["pa"];
+		this.pinDist = o["pd"];
+		this.myStartAngle = o["msa"];
+		this.theirStartAngle = o["tsa"];
+		this.lastKnownAngle = o["lka"];
+		this.mode = o["m"];
+	};
+	behinstProto.afterLoad = function ()
+	{
+		if (this.pinObjectUid === -1)
+			this.pinObject = null;
+		else
+		{
+			this.pinObject = this.runtime.getObjectByUID(this.pinObjectUid);
+;
+		}
+		this.pinObjectUid = -1;
+	};
+	behinstProto.onInstanceDestroyed = function (inst)
+	{
+		if (this.pinObject == inst)
+			this.pinObject = null;
+	};
+	behinstProto.onDestroy = function()
+	{
+		this.pinObject = null;
+		this.runtime.removeDestroyCallback(this.myDestroyCallback);
+	};
+	behinstProto.tick = function ()
+	{
+	};
+	behinstProto.tick2 = function ()
+	{
+		if (!this.pinObject)
+			return;
+		if (this.lastKnownAngle !== this.inst.angle)
+			this.myStartAngle = cr.clamp_angle(this.myStartAngle + (this.inst.angle - this.lastKnownAngle));
+		var newx = this.inst.x;
+		var newy = this.inst.y;
+		if (this.mode === 3 || this.mode === 4)		// rope mode or bar mode
+		{
+			var dist = cr.distanceTo(this.inst.x, this.inst.y, this.pinObject.x, this.pinObject.y);
+			if ((dist > this.pinDist) || (this.mode === 4 && dist < this.pinDist))
+			{
+				var a = cr.angleTo(this.pinObject.x, this.pinObject.y, this.inst.x, this.inst.y);
+				newx = this.pinObject.x + Math.cos(a) * this.pinDist;
+				newy = this.pinObject.y + Math.sin(a) * this.pinDist;
+			}
+		}
+		else
+		{
+			newx = this.pinObject.x + Math.cos(this.pinObject.angle + this.pinAngle) * this.pinDist;
+			newy = this.pinObject.y + Math.sin(this.pinObject.angle + this.pinAngle) * this.pinDist;
+		}
+		var newangle = cr.clamp_angle(this.myStartAngle + (this.pinObject.angle - this.theirStartAngle));
+		this.lastKnownAngle = newangle;
+		if ((this.mode === 0 || this.mode === 1 || this.mode === 3 || this.mode === 4)
+			&& (this.inst.x !== newx || this.inst.y !== newy))
+		{
+			this.inst.x = newx;
+			this.inst.y = newy;
+			this.inst.set_bbox_changed();
+		}
+		if ((this.mode === 0 || this.mode === 2) && (this.inst.angle !== newangle))
+		{
+			this.inst.angle = newangle;
+			this.inst.set_bbox_changed();
+		}
+	};
+	function Cnds() {};
+	Cnds.prototype.IsPinned = function ()
+	{
+		return !!this.pinObject;
+	};
+	behaviorProto.cnds = new Cnds();
+	function Acts() {};
+	Acts.prototype.Pin = function (obj, mode_)
+	{
+		if (!obj)
+			return;
+		var otherinst = obj.getFirstPicked(this.inst);
+		if (!otherinst)
+			return;
+		this.pinObject = otherinst;
+		this.pinAngle = cr.angleTo(otherinst.x, otherinst.y, this.inst.x, this.inst.y) - otherinst.angle;
+		this.pinDist = cr.distanceTo(otherinst.x, otherinst.y, this.inst.x, this.inst.y);
+		this.myStartAngle = this.inst.angle;
+		this.lastKnownAngle = this.inst.angle;
+		this.theirStartAngle = otherinst.angle;
+		this.mode = mode_;
+	};
+	Acts.prototype.Unpin = function ()
+	{
+		this.pinObject = null;
+	};
+	behaviorProto.acts = new Acts();
+	function Exps() {};
+	Exps.prototype.PinnedUID = function (ret)
+	{
+		ret.set_int(this.pinObject ? this.pinObject.uid : -1);
+	};
+	behaviorProto.exps = new Exps();
+}());
+;
+;
 cr.behaviors.bound = function(runtime)
 {
 	this.runtime = runtime;
@@ -19810,6 +19974,7 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.Text,
 	cr.plugins_.Sprite,
 	cr.plugins_.video,
+	cr.behaviors.Pin,
 	cr.behaviors.DragnDrop,
 	cr.behaviors.bound,
 	cr.behaviors.solid,
@@ -19827,15 +19992,27 @@ cr.getObjectRefTable = function () { return [
 	cr.system_object.prototype.exps.viewportbottom,
 	cr.plugins_.Sprite.prototype.acts.SetWidth,
 	cr.system_object.prototype.exps.viewportright,
-	cr.plugins_.Sprite.prototype.acts.SetVisible,
 	cr.plugins_.Sprite.prototype.acts.SetX,
 	cr.plugins_.Sprite.prototype.exps.Width,
+	cr.plugins_.Sprite.prototype.acts.SetVisible,
+	cr.plugins_.Text.prototype.acts.SetY,
+	cr.plugins_.Sprite.prototype.exps.Y,
+	cr.plugins_.Sprite.prototype.exps.Height,
+	cr.plugins_.Text.prototype.exps.Height,
+	cr.plugins_.Text.prototype.acts.SetX,
+	cr.plugins_.Sprite.prototype.exps.X,
+	cr.behaviors.Pin.prototype.acts.Pin,
+	cr.plugins_.Text.prototype.acts.SetVisible,
 	cr.plugins_.Function.prototype.acts.CallFunction,
 	cr.plugins_.video.prototype.acts.SetSource,
+	cr.plugins_.video.prototype.acts.SetLooping,
 	cr.plugins_.video.prototype.acts.SetHeight,
 	cr.plugins_.video.prototype.acts.SetWidth,
 	cr.plugins_.video.prototype.acts.SetX,
 	cr.plugins_.video.prototype.exps.Width,
+	cr.plugins_.video.prototype.exps.X,
+	cr.plugins_.video.prototype.exps.Y,
+	cr.plugins_.video.prototype.exps.Height,
 	cr.plugins_.Rex_FrameMessage.prototype.cnds.OnFunction,
 	cr.plugins_.Rex_FrameMessage.prototype.cnds.OnReturn,
 	cr.plugins_.Rex_FrameMessage.prototype.acts.ConsoleLog,
@@ -19843,14 +20020,12 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.JSON.prototype.acts.LoadJSON,
 	cr.system_object.prototype.cnds.OnLayoutStart,
 	cr.plugins_.Rex_FrameMessage.prototype.acts.CallFunction,
-	cr.behaviors.DragnDrop.prototype.acts.SetEnabled,
 	cr.plugins_.Function.prototype.exps.Param,
-	cr.plugins_.Sprite.prototype.acts.SetY,
-	cr.plugins_.Sprite.prototype.exps.Height,
-	cr.plugins_.Sprite.prototype.exps.X,
-	cr.plugins_.Sprite.prototype.exps.Y,
 	cr.plugins_.Text.prototype.acts.SetFontColor,
 	cr.system_object.prototype.exps.rgb,
-	cr.plugins_.Sprite.prototype.acts.MoveToBottom
+	cr.plugins_.Sprite.prototype.acts.SetY,
+	cr.plugins_.Sprite.prototype.acts.MoveToBottom,
+	cr.plugins_.Sprite.prototype.cnds.IsOverlapping,
+	cr.plugins_.Browser.prototype.acts.ConsoleLog
 ];};
 
