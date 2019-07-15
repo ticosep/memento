@@ -46,7 +46,7 @@ class Game extends Component {
 
     this.ifr.width = viewWidth;
     this.ifr.height = viewHeight;
- 
+
   }
 
   render() {
@@ -75,8 +75,8 @@ class Game extends Component {
   // After the component update, load all the data for the game we set a listner for the ifram messages
   componentDidUpdate() {
 
-    if(this.ifr) {
-      
+    if (this.ifr) {
+
       this.ifr.onload = () => {
         window.addEventListener("message", this.handleFrameTasks);
       }
@@ -101,12 +101,12 @@ class Game extends Component {
           const arrayLembrancas = Object.entries(lembracas);
           let lembrancaCount = arrayLembrancas.length;
 
-          gameSpecs = Object.assign({}, { nome: nome, cpf: cpf, size: lembrancaCount - 1  });
+          gameSpecs = Object.assign({}, { nome: nome, cpf: cpf, size: lembrancaCount - 1 });
 
 
           for (const [index, l] of arrayLembrancas.entries()) {
             const { path, desc, data, type } = l[1];
-           
+
 
             // Create a reference to the file we want to download
             const lembrancaRef = storageRef.child(path);
@@ -128,7 +128,7 @@ class Game extends Component {
                   gameSpecs: gameSpecs
                 });
 
-                window.addEventListener( 'resize', this.onWindowResize, false );
+                window.addEventListener('resize', this.onWindowResize, false);
 
               }
 
