@@ -37,6 +37,11 @@ class Game extends Component {
       this.ifr.contentWindow.postMessage(data, "*");
     }
 
+    if (fnName === 'endGame' && ready) {
+
+      console.log('!!!!!', e);
+    }
+
 
   }
 
@@ -101,7 +106,7 @@ class Game extends Component {
           const arrayLembrancas = Object.entries(lembracas);
           let lembrancaCount = arrayLembrancas.length;
 
-         
+
           gameSpecs = Object.assign({}, { nome: nome, cpf: cpf, size: lembrancaCount - 1 });
 
 

@@ -20296,6 +20296,11 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.video.prototype.exps.X,
 	cr.plugins_.video.prototype.exps.Y,
 	cr.plugins_.video.prototype.exps.Height,
+	cr.system_object.prototype.cnds.ForEach,
+	cr.plugins_.Sprite.prototype.cnds.IsVisible,
+	cr.plugins_.Sprite.prototype.acts.MoveToTop,
+	cr.plugins_.video.prototype.cnds.IsVisible,
+	cr.plugins_.video.prototype.acts.MoveToTop,
 	cr.plugins_.Rex_FrameMessage.prototype.cnds.OnFunction,
 	cr.plugins_.Rex_FrameMessage.prototype.cnds.OnReturn,
 	cr.plugins_.Rex_FrameMessage.prototype.acts.ConsoleLog,
@@ -20309,7 +20314,6 @@ cr.getObjectRefTable = function () { return [
 	cr.system_object.prototype.exps.viewportleft,
 	cr.plugins_.Sprite.prototype.acts.MoveToBottom,
 	cr.behaviors.DragnDrop.prototype.cnds.OnDrop,
-	cr.system_object.prototype.cnds.ForEach,
 	cr.plugins_.Sprite.prototype.exps.BBoxBottom,
 	cr.plugins_.Sprite.prototype.exps.BBoxTop,
 	cr.plugins_.Sprite.prototype.exps.BBoxRight,
@@ -20322,10 +20326,13 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.video.prototype.acts.SetY,
 	cr.system_object.prototype.cnds.EveryTick,
 	cr.system_object.prototype.acts.SetVar,
-	cr.plugins_.Sprite.prototype.cnds.IsVisible,
 	cr.system_object.prototype.acts.AddVar,
-	cr.plugins_.video.prototype.cnds.IsVisible,
 	cr.system_object.prototype.cnds.CompareVar,
-	cr.plugins_.Button.prototype.acts.SetVisible
+	cr.plugins_.Button.prototype.acts.SetVisible,
+	cr.plugins_.Button.prototype.cnds.OnClicked,
+	cr.plugins_.JSON.prototype.acts.Clear,
+	cr.plugins_.JSON.prototype.acts.NewObject,
+	cr.plugins_.JSON.prototype.acts.SetCurrentPath,
+	cr.plugins_.JSON.prototype.acts.SetValue
 ];};
 
