@@ -20246,13 +20246,13 @@ cr.behaviors.solid = function(runtime)
 	behaviorProto.acts = new Acts();
 }());
 cr.getObjectRefTable = function () { return [
-	cr.plugins_.Browser,
 	cr.plugins_.Button,
+	cr.plugins_.Browser,
 	cr.plugins_.Function,
 	cr.plugins_.JSON,
+	cr.plugins_.Rex_FrameMessage,
 	cr.plugins_.Sprite,
 	cr.plugins_.Text,
-	cr.plugins_.Rex_FrameMessage,
 	cr.plugins_.video,
 	cr.behaviors.Pin,
 	cr.behaviors.DragnDrop,
@@ -20332,7 +20332,10 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.Button.prototype.cnds.OnClicked,
 	cr.plugins_.JSON.prototype.acts.Clear,
 	cr.plugins_.JSON.prototype.acts.NewObject,
+	cr.plugins_.Sprite.prototype.cnds.CompareInstanceVar,
 	cr.plugins_.JSON.prototype.acts.SetCurrentPath,
-	cr.plugins_.JSON.prototype.acts.SetValue
+	cr.plugins_.JSON.prototype.acts.SetValue,
+	cr.plugins_.video.prototype.cnds.CompareInstanceVar,
+	cr.plugins_.JSON.prototype.exps.AsJson
 ];};
 

@@ -21,6 +21,7 @@ class Game extends Component {
   handleFrameTasks = (e) => {
     const { fnName } = e.data;
     const { ready, gameSpecs } = this.state;
+    const { history } = this.props;
 
     // Here we need to check if the fnName is that one, it secure that the game is allreadt loaded and the data for it is done
     if (fnName === 'returnJson' && ready) {
@@ -39,7 +40,19 @@ class Game extends Component {
 
     if (fnName === 'endGame' && ready) {
 
-      console.log('!!!!!', e);
+      const { data } = e;
+      const [jsonData] = data.params;
+
+      const gameData = JSON.parse(jsonData);
+      const { key } = this.props.location.state.paciente;
+      
+      database.ref('pacientes/' + key + '/jogos').push({
+        gameData
+    }).then(() => {
+      alert('jogo salvo');
+      history.push('/Cuidador');
+    });
+
     }
 
 
