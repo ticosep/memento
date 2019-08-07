@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { withRouter } from "react-router";
 import { database, storageRef } from './Firebase/firebase';
 import Loader from 'react-loader-spinner';
+import { getDate } from './Utils/getDate';
 
 let viewWidth = window.innerWidth;
 let viewHeight = window.innerHeight;
@@ -44,6 +45,7 @@ class Game extends Component {
       const [jsonData] = data.params;
 
       const gameData = JSON.parse(jsonData);
+      const date = getDate();
       const { key } = this.props.location.state.paciente;
       
       database.ref('pacientes/' + key + '/jogos').push({

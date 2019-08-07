@@ -12,6 +12,8 @@ import Cadastro from './Cadastro/Cadastro'
 import Login from './Login/Login'
 import Paciente from './Paciente/Paciente';
 import Game from './Game';
+import Medico from './Paginas/Medico'
+import Scores from './Paciente/Scores';
 
 import rootStore from './Stores/rootStore';
  
@@ -25,6 +27,8 @@ const routing = (
             <Route exact path="/cadastropaciente"  component={CadastroPaciente}/>
             <Route exact path="/paciente"  component={Paciente}/>
             <Route exact path="/jogar"  component={Game}/>
+            <Route exact path="/jogos"  component={Scores}/>
+            <Route exact path="/medico"  component={Medico}/>
         </Router>
     </Provider>
 )
