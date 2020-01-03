@@ -6,6 +6,7 @@
     "node": "10.15.3"
   },
   "dependencies": {
+    "@babel/plugin-proposal-decorators": "^7.7.4",
     "@babel/core": "7.2.2",
     "@react-firebase/auth": "^0.2.10",
     "@svgr/webpack": "^4.3.3",
