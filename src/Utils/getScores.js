@@ -1,7 +1,7 @@
 export function getScore(gameData) {
-   const { gapCerto , gapSelecionado} = gameData;
-
-   if(gapCerto === gapSelecionado) return 1;
+   const { gapCorreto, gapSelecionado } = gameData;
+   
+   if (gapCorreto === gapSelecionado) return 1;
 
    return 0;
 }

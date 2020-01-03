@@ -36,9 +36,6 @@ class Score extends Component {
                         })}</tbody>
 
                 </Table>
-
-
-
             </Container>
         )
 
