@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route } from 'react-router-dom'
-import {Provider} from "mobx-react";
 
 import './index.css';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
@@ -15,11 +14,9 @@ import Game from './Game';
 import Medico from './Paginas/Medico'
 import Scores from './Paciente/Scores';
 
-import rootStore from './Stores/rootStore';
  
 
 const routing = (
-    <Provider store={rootStore}>
         <Router>
             <Route exact path="/" component={Login} />
             <Route exact path="/cadastro" component={Cadastro} />
@@ -30,7 +27,6 @@ const routing = (
             <Route exact path="/jogos"  component={Scores}/>
             <Route exact path="/medico"  component={Medico}/>
         </Router>
-    </Provider>
 )
 
 
