@@ -5,13 +5,12 @@ import { storageRef, database } from '../Firebase/firebase';
 import LinhaLembranca from '../Tabelas/linhaLembranca';
 import Loader from 'react-loader-spinner';
 import rootStore from '../Stores/rootStore';
-import { observer} from 'mobx-react';
+import { observer } from 'mobx-react';
 import { getContentType } from '../Utils/getContentType';
 
 const store = rootStore;
 
 // Set a store to the pacientes, it will be needed for fast and live att of the current list of files (lembrancas)
-@observer
 class Paciente extends Component {
     constructor(props) {
         super(props);
@@ -86,7 +85,7 @@ class Paciente extends Component {
                 show: false
             })
 
-            
+
 
 
         } catch (error) {
@@ -94,7 +93,7 @@ class Paciente extends Component {
         }
     }
 
-   
+
 
     handleControl = (e) => {
         const { value, id } = e.target;
@@ -115,7 +114,7 @@ class Paciente extends Component {
         let closebutton;
         let uploadbutton;
 
-       
+
 
         if (this.state.uploading) {
             closebutton = <Loader
@@ -129,63 +128,62 @@ class Paciente extends Component {
                 Close
                         </Button>;
 
-            uploadbutton =  <Button type="submit" variant="primary" onClick={this.handleSubmit}>
+            uploadbutton = <Button type="submit" variant="primary" onClick={this.handleSubmit}>
                 Upload
 
             </Button>;
         }
 
         return (
+                <Container>
+                    <Table>
+                        <thead>
+                            <tr>
+                                <th scope="col">{nome}</th>
+                                <th scope="col">descrição</th>
+                                <th scope="col">data</th>
+                            </tr>
+                        </thead>
+                        <tbody>{
+                            store.lembrancaStore.lembrancaList.map((row, index) => {
+                                const { desc, path, data, type } = row;
+                                const objectRow = Object.assign({}, { desc, path, data, type });
+                                return <LinhaLembranca key={index} lembraca={objectRow} />
 
-            <Container>
-                <Table>
-                    <thead>
-                        <tr>
-                            <th scope="col">{nome}</th>
-                            <th scope="col">descrição</th>
-                            <th scope="col">data</th>
-                        </tr>
-                    </thead>
-                    <tbody>{
-                         store.lembrancaStore.lembrancaList.map((row, index) => {
-                            const {desc, path, data, type} = row;
-                            const objectRow = Object.assign({}, {desc, path, data, type});
-                            return <LinhaLembranca key={index} lembraca={objectRow} />
-                            
-                        })}</tbody>
+                            })}</tbody>
 
-                </Table>
+                    </Table>
 
-                <Button className="btn btn-primary" onClick={this.handleShow}>
-                    Upload de lembraca
+                    <Button className="btn btn-primary" onClick={this.handleShow}>
+                        Upload de lembraca
                 </Button>
 
-                <Modal show={this.state.show} onHide={this.handleClose}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Upload de lembraça</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <Form onSubmit={this.handleSubmit}>
-                            <FormGroup>
-                                <FormControl type="text" id="desc" placeholder="Decrição da lembraça" onChange={this.handleControl} onClick={this.handleControl}></FormControl>
-                            </FormGroup>
+                    <Modal show={this.state.show} onHide={this.handleClose}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Upload de lembraça</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <Form onSubmit={this.handleSubmit}>
+                                <FormGroup>
+                                    <FormControl type="text" id="desc" placeholder="Decrição da lembraça" onChange={this.handleControl} onClick={this.handleControl}></FormControl>
+                                </FormGroup>
 
-                            <FormGroup>
-                                <FormControl type="date" id="data" placeholder="Data de ocorrencia" onChange={this.handleControl} onClick={this.handleControl}></FormControl>
-                            </FormGroup>
+                                <FormGroup>
+                                    <FormControl type="date" id="data" placeholder="Data de ocorrencia" onChange={this.handleControl} onClick={this.handleControl}></FormControl>
+                                </FormGroup>
 
-                            <FormGroup>
-                                <FormControl type="file" id="file" placeholder="Selecione a lembrança" onChange={this.handleFile} onClick={this.handleFile}></FormControl>
-                            </FormGroup>
-                        </Form>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        {closebutton}
-                        {uploadbutton}
-                    </Modal.Footer>
-                </Modal>
+                                <FormGroup>
+                                    <FormControl type="file" id="file" placeholder="Selecione a lembrança" onChange={this.handleFile} onClick={this.handleFile}></FormControl>
+                                </FormGroup>
+                            </Form>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            {closebutton}
+                            {uploadbutton}
+                        </Modal.Footer>
+                    </Modal>
 
-            </Container>
+                </Container>
         )
 
     }
@@ -224,4 +222,4 @@ class Paciente extends Component {
     }
 }
 
-export default withRouter(Paciente);
+export default observer(withRouter(Paciente));

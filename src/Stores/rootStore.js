@@ -1,12 +1,13 @@
 import UserStore from './userStore';
 import LembracaStore from './lembrancaStore';
+import { types } from "mobx-state-tree"
 
-class RootStore {
-  constructor() {
-    this.userStore = new UserStore(this);
-    this.lembrancaStore = new LembracaStore(this);
-  }
-}
+// Store that will have all the lembracas from a given paciente
+const RootStore = types
+    .model({
+      userStore: types.optional(UserStore, {}),
+      lembrancaStore: types.optional(LembracaStore, {})
+    });
 
 
-export default new RootStore();
+export default RootStore.create();

@@ -1,19 +1,15 @@
-import { action, computed, observable } from 'mobx';
+import { types } from "mobx-state-tree"
 
-class UserStore {
-  @observable user;
-  
-  constructor(rootStore) {
-    this.rootStore = rootStore;
-  }
+// Store that will have all the lembracas from a given paciente
+const UserStore = types
+    .model({
+        type: types.maybe(types.string)
+    })
+    .actions(self => ({
+        setType  (type)  {
+            self.type = type;
+        }
+    }))
 
-  @action setUser = (user) => {
-    	this.user = user;
-  };
-
-  @computed get userTipo() {
-    return this.user.tipo;
-  }
- }
 
 export default UserStore;
