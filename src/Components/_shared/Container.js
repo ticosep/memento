@@ -3,8 +3,6 @@ import styled from "styled-components";
 import { mediaQuery } from "../../utils/mediaQuery";
 
 export const Container = styled.div`
-  padding: 1rem;
-
   @media ${mediaQuery.md} {
     margin-left: auto;
     margin-right: auto;
