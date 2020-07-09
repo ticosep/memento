@@ -5,8 +5,31 @@ import Form from "react-bootstrap/Form";
 import { useForm } from "react-hook-form";
 import Loader from "react-loader-spinner";
 import { useHistory, withRouter } from "react-router";
+import styled from "styled-components";
 
 import { app, database } from "../../services/firebase";
+import { Container } from "../_shared/Container";
+
+const Wrapper = styled.div`
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const StyledForm = styled(Form)`
+  min-width: 300px;
+  padding: 1rem;
+
+  display: flex;
+  flex-direction: column;
+
+  background-color: #007bff;
+  box-shadow: 0 0 1em gray;
+  color: white;
+  border-radius: 0.5rem;
+`;
 
 const Register = () => {
   const { handleSubmit, register } = useForm();
@@ -44,67 +67,77 @@ const Register = () => {
   }
 
   return (
-    <Form onSubmit={handleSubmit(onSubmit)}>
-      <FormGroup>
-        <FormControl
-          type="email"
-          autoComplete="email"
-          id="email"
-          name="email"
-          placeholder="name@example.com"
-          ref={register}
-        ></FormControl>
-      </FormGroup>
-      <FormGroup>
-        <FormControl
-          type="password"
-          id="password"
-          name="password"
-          placeholder="senha"
-          ref={register}
-        ></FormControl>
-      </FormGroup>
-      <FormGroup>
-        <FormControl
-          type="name"
-          id="name"
-          name="name"
-          placeholder="Nome"
-          ref={register}
-        ></FormControl>
-      </FormGroup>
-      <FormGroup>
-        <FormControl
-          type="text"
-          id="cpf"
-          name="cpf"
-          placeholder="CPF"
-          ref={register}
-        ></FormControl>
-      </FormGroup>
-      <FormGroup>
-        <FormControl
-          type="date"
-          id="birthday"
-          name="birthday"
-          placeholder="Data nascimento"
-          ref={register}
-        ></FormControl>
-      </FormGroup>
-      <FormGroup>
-        <FormControl
-          as="select"
-          id="type"
-          name="type"
-          ref={register}
-          defaultValue="Medico"
-        >
-          <option>Medico</option>
-          <option>Cuidador</option>
-        </FormControl>
-      </FormGroup>
-      <Button type="submit"> Cadastar </Button>
-    </Form>
+    <Container>
+      <Wrapper>
+        <StyledForm onSubmit={handleSubmit(onSubmit)}>
+          <FormGroup>
+            <Form.Label>Email</Form.Label>
+            <FormControl
+              type="email"
+              autoComplete="email"
+              id="email"
+              name="email"
+              placeholder="name@example.com"
+              ref={register}
+            ></FormControl>
+          </FormGroup>
+          <FormGroup>
+            <Form.Label>Senha</Form.Label>
+            <FormControl
+              type="password"
+              id="password"
+              name="password"
+              placeholder="senha"
+              ref={register}
+            ></FormControl>
+          </FormGroup>
+          <FormGroup>
+            <Form.Label>Nome</Form.Label>
+            <FormControl
+              type="name"
+              id="name"
+              name="name"
+              placeholder="Nome"
+              ref={register}
+            ></FormControl>
+          </FormGroup>
+          <FormGroup>
+            <Form.Label>CPF</Form.Label>
+            <FormControl
+              type="text"
+              id="cpf"
+              name="cpf"
+              placeholder="CPF"
+              ref={register}
+            ></FormControl>
+          </FormGroup>
+          <FormGroup>
+            <Form.Label>Data nascimento </Form.Label>
+            <FormControl
+              type="date"
+              id="birthday"
+              name="birthday"
+              placeholder="Data nascimento"
+              ref={register}
+            ></FormControl>
+          </FormGroup>
+          <FormGroup>
+            <Form.Label>Tipo de usuario</Form.Label>
+            <FormControl
+              as="select"
+              id="type"
+              name="type"
+              ref={register}
+              defaultValue="Medico"
+            >
+              <option>Medico</option>
+              <option>Cuidador</option>
+            </FormControl>
+          </FormGroup>
+          <Button type="submit"> Cadastar </Button>
+        </StyledForm>
+      </Wrapper>
+    </Container>
   );
 };
 

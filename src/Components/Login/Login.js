@@ -2,8 +2,36 @@ import { inject, observer } from "mobx-react";
 import React, { Component } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import Loader from "react-loader-spinner";
 import { Redirect, withRouter } from "react-router";
+import styled from "styled-components";
+
+import { Container } from "../_shared/Container";
+
+const Wrapper = styled.div`
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const StyledForm = styled(Form)`
+  min-width: 300px;
+  padding: 1rem;
+
+  display: flex;
+  flex-direction: column;
+
+  background-color: #007bff;
+  box-shadow: 0 0 1em gray;
+  color: white;
+  border-radius: 0.5rem;
+`;
+
+const ButtonsControl = styled(Form)`
+  display: flex;
+  justify-content: space-between;
+`;
 
 class Login extends Component {
   constructor(props) {
@@ -58,35 +86,42 @@ class Login extends Component {
       return <Redirect to={`/${this.props.store.userStore.user.type}`} />;
     }
     return (
-      <div className="Login">
-        <Form onSubmit={this.handleSubmit}>
-          <Form.Group controlId="email">
-            <Form.Control
-              autoFocus
-              type="email"
-              value={this.state.email}
-              onChange={this.handleChange}
-            />
-          </Form.Group>
-          <Form.Group controlId="password">
-            <Form.Control
-              value={this.state.password}
-              onChange={this.handleChange}
-              type="password"
-            />
-          </Form.Group>
-          <Button
-            className="btn btn-primary"
-            disabled={!this.validateForm()}
-            type="submit"
-          >
-            Login
-          </Button>
-          <Button className="btn btn-primary" onClick={this.routeChange}>
-            Cadastrar
-          </Button>
-        </Form>
-      </div>
+      <Container>
+        <Wrapper>
+          <StyledForm onSubmit={this.handleSubmit} id="login">
+            <Form.Group controlId="email">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                autoFocus
+                type="email"
+                value={this.state.email}
+                onChange={this.handleChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="password">
+              <Form.Label>Senha</Form.Label>
+              <Form.Control
+                value={this.state.password}
+                onChange={this.handleChange}
+                type="password"
+              />
+            </Form.Group>
+            <ButtonsControl>
+              <Button
+                className="btn btn-primary"
+                disabled={!this.validateForm()}
+                type="submit"
+                form="login"
+              >
+                Login
+              </Button>
+              <Button className="btn btn-primary" onClick={this.routeChange}>
+                Cadastrar
+              </Button>
+            </ButtonsControl>
+          </StyledForm>
+        </Wrapper>
+      </Container>
     );
   }
 }
