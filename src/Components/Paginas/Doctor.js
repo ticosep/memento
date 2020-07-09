@@ -1,11 +1,12 @@
+import { inject, observer } from "mobx-react";
+import { getSnapshot } from "mobx-state-tree";
 import React, { Component } from "react";
 import { Container, Table } from "react-bootstrap";
 import { withRouter } from "react-router";
 
-import { database } from "../../services/firebase";
 import LinhaPacienteMedico from "../TableRows/DoctorPatientRow";
 
-class Medico extends Component {
+class Doctor extends Component {
   constructor(props) {
     super(props);
 
@@ -31,7 +32,7 @@ class Medico extends Component {
           </thead>
           <tbody>
             {this.state.rows.map((row, index) => {
-              return <LinhaPacienteMedico key={index} paciente={row} />;
+              return <LinhaPacienteMedico key={index} {...row} />;
             })}
           </tbody>
         </Table>
@@ -40,29 +41,12 @@ class Medico extends Component {
   }
 
   componentDidMount() {
-    database
-      .ref("pacientes")
-      .once("value")
-      .then((snapshot) => {
-        const pacientes = snapshot.val();
-        const arrayPaci = Object.entries(pacientes);
-        const rows = [];
+    const patients = getSnapshot(this.props.store.userStore.user.patients);
 
-        for (const paciente of arrayPaci) {
-          const infos = paciente[1];
-          const key = {
-            key: paciente[0],
-          };
-
-          const mergedPaciente = Object.assign(infos, key);
-          rows.push(mergedPaciente);
-        }
-
-        this.setState({
-          rows: rows,
-        });
-      });
+    this.setState({
+      rows: patients,
+    });
   }
 }
 
-export default withRouter(Medico);
+export default withRouter(inject("store")(observer(Doctor)));

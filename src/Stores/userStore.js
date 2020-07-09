@@ -23,7 +23,7 @@ const User = types.model({
   birthday: types.maybe(types.string),
   cpf: types.maybe(types.string),
   uid: types.maybe(types.string),
-  patients: types.map(Patient),
+  patients: types.array(Patient),
 });
 
 // Store that will have all the lembracas from a given paciente
