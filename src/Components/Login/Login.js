@@ -2,7 +2,8 @@ import { inject, observer } from "mobx-react";
 import React, { Component } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import { withRouter } from "react-router";
+import Loader from "react-loader-spinner";
+import { Redirect, withRouter } from "react-router";
 
 class Login extends Component {
   constructor(props) {
@@ -39,7 +40,7 @@ class Login extends Component {
     });
 
     if (response) {
-      history.push(`${store.userStore.type}`);
+      history.push(`${store.userStore.user.type}`);
     }
 
     if (!response) {
@@ -53,6 +54,9 @@ class Login extends Component {
   };
 
   render() {
+    if (this.props.store.userStore.isAuthorized) {
+      return <Redirect to={`/${this.props.store.userStore.user.type}`} />;
+    }
     return (
       <div className="Login">
         <Form onSubmit={this.handleSubmit}>

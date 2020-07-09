@@ -2,91 +2,101 @@ import React from "react";
 import { FormControl, FormGroup } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import { withRouter } from "react-router";
+import { useForm } from "react-hook-form";
+import Loader from "react-loader-spinner";
+import { useHistory, withRouter } from "react-router";
 
 import { app, database } from "../../services/firebase";
 
 const Register = () => {
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const { email, password, birthday, name, cpf, type, patients } = this.state;
+  const { handleSubmit, register } = useForm();
+  const history = useHistory();
+  const [isRegister, setIsRegister] = React.useState(false);
 
+  const onSubmit = async (data) => {
+    const { email, password, birthday, name, cpf, type } = data;
+    setIsRegister(true);
     //Try to push data to the firebase after it creates a user by the default google createUser's
     try {
-      app
+      const authUser = await app
         .auth()
-        .createUserWithEmailAndPassword(email, password)
-        .then((authUser) => {
-          // Create a user in your Firebase realtime database
-          return database.ref("users/" + authUser.user.uid).set({
-            name,
-            email,
-            birthday,
-            cpf,
-            type,
-            patients,
-          });
-        });
-      this.props.history.push("/");
+        .createUserWithEmailAndPassword(email, password);
+
+      // Create a user in your Firebase realtime database
+      await database.ref("users/" + authUser.user.uid).set({
+        name,
+        email,
+        birthday,
+        cpf,
+        type,
+      });
+
+      setIsRegister(false);
+
+      history.push("/");
     } catch (error) {
       alert(error);
     }
   };
 
+  if (isRegister) {
+    return <Loader type="Puff" color="#00BFFF" height={100} width={100} />;
+  }
+
   return (
-    <Form onSubmit={this.handleSubmit}>
+    <Form onSubmit={handleSubmit(onSubmit)}>
       <FormGroup>
         <FormControl
           type="email"
           autoComplete="email"
           id="email"
+          name="email"
           placeholder="name@example.com"
-          onChange={this.handleControl}
-          onClick={this.handleControl}
+          ref={register}
         ></FormControl>
       </FormGroup>
       <FormGroup>
         <FormControl
           type="password"
           id="password"
+          name="password"
           placeholder="senha"
-          onChange={this.handleControl}
-          onClick={this.handleControl}
+          ref={register}
         ></FormControl>
       </FormGroup>
       <FormGroup>
         <FormControl
           type="name"
           id="name"
+          name="name"
           placeholder="Nome"
-          onChange={this.handleControl}
-          onClick={this.handleControl}
+          ref={register}
         ></FormControl>
       </FormGroup>
       <FormGroup>
         <FormControl
           type="text"
           id="cpf"
+          name="cpf"
           placeholder="CPF"
-          onChange={this.handleControl}
-          onClick={this.handleControl}
+          ref={register}
         ></FormControl>
       </FormGroup>
       <FormGroup>
         <FormControl
           type="date"
           id="birthday"
+          name="birthday"
           placeholder="Data nascimento"
-          onChange={this.handleControl}
-          onClick={this.handleControl}
+          ref={register}
         ></FormControl>
       </FormGroup>
       <FormGroup>
         <FormControl
           as="select"
           id="type"
-          onChange={this.handleControl}
-          onClick={this.handleControl}
+          name="type"
+          ref={register}
           defaultValue="Medico"
         >
           <option>Medico</option>

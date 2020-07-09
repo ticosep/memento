@@ -2,6 +2,7 @@ import { Provider } from "mobx-react";
 import React from "react";
 import { HashRouter as Router } from "react-router-dom";
 
+import Layout from "./layout";
 import Routes from "./routes";
 import rootStore from "./stores/rootStore";
 
@@ -11,7 +12,9 @@ const App = () => {
   return (
     <Router basename={basePath}>
       <Provider store={rootStore}>
-        <Routes />
+        <Layout>
+          <Routes />
+        </Layout>
       </Provider>
     </Router>
   );

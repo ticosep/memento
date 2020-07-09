@@ -18,7 +18,7 @@ const Patient = types.model({
 });
 
 const User = types.model({
-  type: types.maybe(types.string),
+  type: types.maybeNull(types.string),
   name: types.maybe(types.string),
   birthday: types.maybe(types.string),
   cpf: types.maybe(types.string),
@@ -29,11 +29,15 @@ const User = types.model({
 // Store that will have all the lembracas from a given paciente
 const UserStore = types
   .model({
-    user: types.maybe(User),
+    user: types.maybeNull(User),
     token: types.maybe(types.string),
     loading: false,
   })
-
+  .views((self) => ({
+    get isAuthorized() {
+      return !!self.token;
+    },
+  }))
   .actions((self) => {
     const fetchUser = flow(function* () {
       self.loading = true;
@@ -46,7 +50,7 @@ const UserStore = types
 
         const value = snapshot.val();
 
-        console.log(value);
+        self.user = value;
       } catch (error) {
         console.error(error.message);
       }
@@ -58,13 +62,13 @@ const UserStore = types
   })
 
   .actions((self) => {
-    const initialize = (token) => {
+    const initialize = flow(function* (token) {
       self.token = token;
 
       if (token) {
-        self.fetchUser();
+        yield self.fetchUser();
       }
-    };
+    });
 
     return {
       initialize,
@@ -73,8 +77,6 @@ const UserStore = types
   .actions((self) => {
     // Make the login with the API, pass the token that come from google, and set the token generated in th API
     const login = flow(function* ({ email, password }) {
-      self.loading = true;
-
       // Try to login with the google default sing in
       try {
         const authUser = yield app
@@ -83,7 +85,7 @@ const UserStore = types
 
         const { uid } = authUser.user;
 
-        self.initialize(uid);
+        yield self.initialize(uid);
 
         return {
           response: true,
@@ -97,19 +99,17 @@ const UserStore = types
           message: error.message,
         };
       }
-
-      self.loading = false;
     });
 
     return { login };
   })
 
   .actions((self) => ({
-    afterCreate: () => {
+    afterCreate: async () => {
       const token = localStorage.getItem(STORAGE_KEY_TOKEN);
 
       // Case the token is allready in localsotrage initialize with it
-      self.initialize(token || undefined);
+      await self.initialize(token || undefined);
 
       autorun(() => {
         if (self.token) {
