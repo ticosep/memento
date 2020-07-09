@@ -6,7 +6,7 @@ import { withRouter } from "react-router";
 
 import { app, database } from "../../services/firebase";
 
-class CadastroPaciente extends Component {
+class RegisterPatient extends Component {
   constructor(props) {
     super(props);
 
@@ -106,4 +106,4 @@ class CadastroPaciente extends Component {
   }
 }
 
-export default withRouter(CadastroPaciente);
+export default withRouter(RegisterPatient);
