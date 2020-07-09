@@ -21,35 +21,8 @@ class RegisterPatient extends Component {
   handleSubmit = async (event) => {
     event.preventDefault();
     const { birthday, name, cpf, weight } = this.state;
-    const { history } = this.props;
 
     try {
-      // Get the current user id, then set the new "paciente" to its object in the firebase
-      const user = app.auth().currentUser;
-
-      database
-        .ref("users/" + user.uid + "/pacientes")
-        .push({
-          name,
-          birthday,
-          cpf,
-          weight,
-        })
-        .then((values) => {
-          const key = values.key;
-          const value = { name, birthday, cpf, weight, cuidador: user.uid };
-
-          database
-            .ref("pacientes/")
-            .child(key)
-            .set(value)
-            .then(() => {
-              const userValues = localStorage.getItem("user");
-              const userValuesObj = JSON.parse(userValues);
-
-              history.push("/" + userValuesObj.tipo);
-            });
-        });
     } catch (error) {
       alert(error);
     }
@@ -70,6 +43,7 @@ class RegisterPatient extends Component {
             placeholder="Jose da Silva"
             onChange={this.handleControl}
             onClick={this.handleControl}
+            required={true}
           ></FormControl>
         </FormGroup>
         <FormGroup>
@@ -79,6 +53,7 @@ class RegisterPatient extends Component {
             placeholder="peso"
             onChange={this.handleControl}
             onClick={this.handleControl}
+            required={true}
           ></FormControl>
         </FormGroup>
         <FormGroup>
@@ -88,6 +63,7 @@ class RegisterPatient extends Component {
             placeholder="CPF"
             onChange={this.handleControl}
             onClick={this.handleControl}
+            required={true}
           ></FormControl>
         </FormGroup>
         <FormGroup>
@@ -97,6 +73,7 @@ class RegisterPatient extends Component {
             placeholder="Data nascimento"
             onChange={this.handleControl}
             onClick={this.handleControl}
+            required={true}
           ></FormControl>
         </FormGroup>
 

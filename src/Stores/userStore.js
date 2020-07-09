@@ -107,6 +107,29 @@ const UserStore = types
     return { login, logout };
   })
 
+  .actions((self) => {
+    const addPatient = flow(function* (patient) {
+      try {
+        const values = yield database.ref("pacientes/").push(patient);
+
+        if (self.user.type === "Cuidador") {
+          const key = values.key;
+          const value = { ...patient, cuidador: self.token };
+          const values = yield database
+            .ref("users/" + self.token + "/pacientes")
+            .child(key)
+            .set(patient);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    });
+
+    return {
+      addPatient,
+    };
+  })
+
   .actions((self) => ({
     afterCreate: async () => {
       const token = localStorage.getItem(STORAGE_KEY_TOKEN);
