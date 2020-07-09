@@ -75,6 +75,9 @@ const UserStore = types
     };
   })
   .actions((self) => {
+    const logout = () => {
+      self.token = undefined;
+    };
     // Make the login with the API, pass the token that come from google, and set the token generated in th API
     const login = flow(function* ({ email, password }) {
       // Try to login with the google default sing in
@@ -101,7 +104,7 @@ const UserStore = types
       }
     });
 
-    return { login };
+    return { login, logout };
   })
 
   .actions((self) => ({

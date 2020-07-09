@@ -1,4 +1,5 @@
 import React from "react";
+import { Button } from "react-bootstrap";
 import Loader from "react-loader-spinner";
 import styled from "styled-components";
 
@@ -17,7 +18,8 @@ const Navbar = styled.div`
   background-color: #007bff;
 `;
 const StyledContainer = styled(Container)`
-  padding: 0.3rem 0;
+  padding-top: 0.3rem;
+  padding-bottom: 0.3rem;
 `;
 
 const Wrapper = styled.div`
@@ -42,6 +44,10 @@ const NameText = styled.span`
   white-space: nowrap;
 `;
 
+const UserChildrenWrapper = styled.div`
+  margin-top: 1rem;
+`;
+
 const Layout = ({ children }) => {
   const loading = useIsUserLoading();
   const isAuth = useIsAuthorized();
@@ -60,22 +66,29 @@ const Layout = ({ children }) => {
 
   return (
     <React.Fragment>
-      <Navbar bg="primary" sticky="top">
+      <Navbar>
         <StyledContainer>
           <Wrapper>
             <NameText>{name}</NameText>
             <ButtonWrapper>
-              <ButtonLink variant="primary" label="Perfil" to="/profile" />
               <ButtonLink
                 variant="primary"
                 label="Meus Pacientes"
                 to={`/${type}`}
               />
+              <Button
+                variant="primary"
+                onClick={() => {
+                  store.userStore.logout();
+                }}
+              >
+                Sair
+              </Button>
             </ButtonWrapper>
           </Wrapper>
         </StyledContainer>
       </Navbar>
-      {children}
+      <UserChildrenWrapper>{children}</UserChildrenWrapper>
     </React.Fragment>
   );
 };

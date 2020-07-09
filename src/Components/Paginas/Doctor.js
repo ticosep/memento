@@ -1,9 +1,10 @@
 import { inject, observer } from "mobx-react";
 import { getSnapshot } from "mobx-state-tree";
 import React, { Component } from "react";
-import { Container, Table } from "react-bootstrap";
+import { Table } from "react-bootstrap";
 import { withRouter } from "react-router";
 
+import { Container } from "../_shared/Container";
 import LinhaPacienteMedico from "../TableRows/DoctorPatientRow";
 
 class Doctor extends Component {
@@ -18,7 +19,7 @@ class Doctor extends Component {
   render() {
     return (
       <Container>
-        <Table>
+        <Table striped bordered hover>
           <thead>
             <tr>
               <th scope="col">Nome</th>
