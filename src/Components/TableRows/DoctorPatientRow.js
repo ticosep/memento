@@ -39,10 +39,10 @@ class LinhaPacienteMedico extends Component {
   render() {
     return (
       <tr>
-        <td>{this.props.desc.name}</td>
-        <td>{this.props.desc.weight}</td>
-        <td>{this.props.desc.cpf}</td>
-        <td>{this.props.desc.birthday}</td>
+        <td>{this.props.name}</td>
+        <td>{this.props.weight}</td>
+        <td>{this.props.cpf}</td>
+        <td>{this.props.birthday}</td>
         <td>
           <Button
             id="acessar"

@@ -33,7 +33,6 @@ class Doctor extends Component {
     super(props);
 
     this.state = {
-      rows: [],
       show: false,
     };
   }
@@ -47,6 +46,8 @@ class Doctor extends Component {
   };
 
   render() {
+    const patients = getSnapshot(this.props.store.userStore.user.patients);
+
     return (
       <Container>
         <Header>
@@ -66,7 +67,7 @@ class Doctor extends Component {
             </tr>
           </thead>
           <tbody>
-            {this.state.rows.map((row, index) => {
+            {patients.map((row, index) => {
               return <LinhaPacienteMedico key={index} {...row} />;
             })}
           </tbody>
@@ -86,14 +87,6 @@ class Doctor extends Component {
         </Modal>
       </Container>
     );
-  }
-
-  componentDidMount() {
-    const patients = getSnapshot(this.props.store.userStore.user.patients);
-
-    this.setState({
-      rows: patients,
-    });
   }
 }
 

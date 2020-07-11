@@ -5,16 +5,12 @@ import { app, database } from "../services/firebase";
 
 const STORAGE_KEY_TOKEN = "token";
 
-const PatientDescription = types.model({
+const Patient = types.model({
+  id: types.maybe(types.string),
   name: types.maybe(types.string),
   birthday: types.maybe(types.string),
   cpf: types.maybe(types.string),
-  weight: types.maybe(types.number),
-});
-
-const Patient = types.model({
-  id: types.maybe(types.string),
-  desc: types.maybe(PatientDescription),
+  weight: types.maybe(types.string),
 });
 
 const User = types.model({
@@ -51,6 +47,17 @@ const UserStore = types
         const value = snapshot.val();
 
         self.user = value;
+
+        if (self.user.type === "Medico") {
+          const snapshot = yield database.ref("pacientes/").once("value");
+
+          const value = snapshot.val();
+
+          self.user.patients = Object.entries(value).map(([key, value]) => {
+            const patient = Object.assign({}, { ...value }, { id: key });
+            return patient;
+          });
+        }
       } catch (error) {
         console.error(error.message);
       }
@@ -112,14 +119,22 @@ const UserStore = types
       try {
         const values = yield database.ref("pacientes/").push(patient);
 
+        const newPatient = Object.assign(
+          {},
+          { ...patient },
+          { id: values.key }
+        );
+
         if (self.user.type === "Cuidador") {
           const key = values.key;
           const value = { ...patient, cuidador: self.token };
-          const values = yield database
+          yield database
             .ref("users/" + self.token + "/pacientes")
             .child(key)
-            .set(patient);
+            .set(value);
         }
+
+        self.user.patients.push(newPatient);
       } catch (error) {
         console.error(error);
       }
