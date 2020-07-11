@@ -6,34 +6,9 @@ import { withRouter } from "react-router";
 class LinhaPacienteMedico extends Component {
   routeChange = (e) => {
     const { id } = e.target;
-    const { history, paciente } = this.props;
+    const { history, patient } = this.props;
 
-    if (id === "acessar") {
-      history.push({
-        pathname: "/paciente",
-        state: {
-          paciente,
-        },
-      });
-    }
-
-    if (id === "acessarJogos") {
-      history.push({
-        pathname: "/jogos",
-        state: {
-          paciente,
-        },
-      });
-    }
-
-    if (id === "jogar") {
-      history.push({
-        pathname: "/jogar",
-        state: {
-          paciente,
-        },
-      });
-    }
+    history.push(`${id}/${patient.id}`);
   };
 
   render() {
@@ -45,7 +20,7 @@ class LinhaPacienteMedico extends Component {
         <td>{this.props.birthday}</td>
         <td>
           <Button
-            id="acessar"
+            id="paciente"
             className="btn btn-primary"
             onClick={this.routeChange}
           >
@@ -54,7 +29,7 @@ class LinhaPacienteMedico extends Component {
         </td>
         <td>
           <Button
-            id="acessarJogos"
+            id="jogos"
             className="btn btn-primary"
             onClick={this.routeChange}
           >

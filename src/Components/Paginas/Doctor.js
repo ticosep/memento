@@ -6,7 +6,6 @@ import React, { Component } from "react";
 import { Table } from "react-bootstrap";
 import { Modal } from "react-bootstrap";
 import { ModalTitle } from "react-bootstrap";
-import { ModalFooter } from "react-bootstrap";
 import { ModalBody } from "react-bootstrap";
 import ModalHeader from "react-bootstrap/esm/ModalHeader";
 import { withRouter } from "react-router";
@@ -68,7 +67,7 @@ class Doctor extends Component {
           </thead>
           <tbody>
             {patients.map((row, index) => {
-              return <LinhaPacienteMedico key={index} {...row} />;
+              return <LinhaPacienteMedico key={index} patient={row} {...row} />;
             })}
           </tbody>
         </Table>

@@ -1,9 +1,17 @@
 import { autorun } from "mobx";
 import { flow, types } from "mobx-state-tree";
 
-import { app, database } from "../services/firebase";
+import { app, database, storageRef } from "../services/firebase";
+import { getContentType } from "../utils/getContentType";
 
 const STORAGE_KEY_TOKEN = "token";
+
+const Memento = types.model({
+  desc: types.maybe(types.string),
+  data: types.maybe(types.string),
+  path: types.maybe(types.string),
+  type: types.maybe(types.string),
+});
 
 const Patient = types.model({
   id: types.maybe(types.string),
@@ -11,6 +19,7 @@ const Patient = types.model({
   birthday: types.maybe(types.string),
   cpf: types.maybe(types.string),
   weight: types.maybe(types.string),
+  mementos: types.array(types.optional(Memento, {})),
 });
 
 const User = types.model({
@@ -54,7 +63,13 @@ const UserStore = types
           const value = snapshot.val();
 
           self.user.patients = Object.entries(value).map(([key, value]) => {
-            const patient = Object.assign({}, { ...value }, { id: key });
+            const mementos = Object.values(value.mementos);
+            const patient = Object.assign(
+              {},
+              { ...value },
+              { id: key },
+              { mementos }
+            );
             return patient;
           });
         }
@@ -65,7 +80,44 @@ const UserStore = types
       self.loading = false;
     });
 
-    return { fetchUser };
+    const addMemento = flow(function* (id, memento, desc, file, data, type) {
+      self.loading = true;
+
+      try {
+        yield new Promise((resolve, reject) => {
+          try {
+            storageRef
+              .child("mementos/" + id + "/" + desc)
+              .put(file, memento)
+              .then(() => {
+                resolve("Uploaded");
+              });
+          } catch (error) {
+            reject("Error upload!");
+          }
+        });
+
+        storageRef.child("mementos/" + id + "/" + desc).updateMetadata(memento);
+
+        const path = storageRef.child("mementos/" + id + "/" + desc).fullPath;
+
+        yield database.ref("pacientes/" + id + "/mementos").push({
+          desc,
+          data,
+          path,
+          type: getContentType(type),
+        });
+
+        const patient = self.user.patients.find((patient) => patient.id === id);
+        patient.mementos.push({ desc, path, data, type });
+      } catch (error) {
+        console.error(error.message);
+      }
+
+      self.loading = false;
+    });
+
+    return { fetchUser, addMemento };
   })
 
   .actions((self) => {

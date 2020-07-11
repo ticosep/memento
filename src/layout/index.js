@@ -18,8 +18,7 @@ const Navbar = styled.div`
   background-color: #007bff;
 `;
 const StyledContainer = styled(Container)`
-  padding-top: 0.3rem;
-  padding-bottom: 0.3rem;
+  padding: 1rem 0;
 `;
 
 const Wrapper = styled.div`

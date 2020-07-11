@@ -22,9 +22,9 @@ const Routes = () => {
         path="/cadastropaciente"
         component={RegisterPatient}
       />
-      <PrivateRoute exact path="/paciente" component={Patient} />
-      <PrivateRoute exact path="/jogar" component={Game} />
-      <PrivateRoute exact path="/jogos" component={Scores} />
+      <PrivateRoute exact path="/paciente/:id" component={Patient} />
+      <PrivateRoute exact path="/jogar/:id" component={Game} />
+      <PrivateRoute exact path="/jogos/:id" component={Scores} />
       <PrivateRoute exact path="/medico" component={Doctor} />
     </Switch>
   );
