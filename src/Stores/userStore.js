@@ -11,6 +11,7 @@ const Memento = types.model({
   data: types.maybe(types.string),
   path: types.maybe(types.string),
   type: types.maybe(types.string),
+  url: types.maybe(types.string),
 });
 
 const Patient = types.model({
@@ -19,6 +20,7 @@ const Patient = types.model({
   birthday: types.maybe(types.string),
   cpf: types.maybe(types.string),
   weight: types.maybe(types.string),
+  scores: types.maybe(types.string),
   mementos: types.array(types.optional(Memento, {})),
 });
 
@@ -63,7 +65,9 @@ const UserStore = types
           const value = snapshot.val();
 
           self.user.patients = Object.entries(value).map(([key, value]) => {
-            const mementos = Object.values(value.mementos);
+            const mementos = value.mementos
+              ? Object.values(value.mementos)
+              : [];
             const patient = Object.assign(
               {},
               { ...value },
@@ -81,8 +85,6 @@ const UserStore = types
     });
 
     const addMemento = flow(function* (id, memento, desc, file, data, type) {
-      self.loading = true;
-
       try {
         yield new Promise((resolve, reject) => {
           try {
@@ -101,20 +103,25 @@ const UserStore = types
 
         const path = storageRef.child("mementos/" + id + "/" + desc).fullPath;
 
+        // Create a reference to the file we want to download
+        const mementoRef = storageRef.child(path);
+
+        // Get the download URL
+        const url = yield mementoRef.getDownloadURL();
+
         yield database.ref("pacientes/" + id + "/mementos").push({
           desc,
           data,
           path,
           type: getContentType(type),
+          url,
         });
 
         const patient = self.user.patients.find((patient) => patient.id === id);
-        patient.mementos.push({ desc, path, data, type });
+        patient.mementos.push({ desc, path, data, type, url });
       } catch (error) {
         console.error(error.message);
       }
-
-      self.loading = false;
     });
 
     return { fetchUser, addMemento };

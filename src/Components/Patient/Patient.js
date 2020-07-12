@@ -15,10 +15,8 @@ import Loader from "react-loader-spinner";
 import { withRouter } from "react-router";
 import styled from "styled-components";
 
-import { database, storageRef } from "../../services/firebase";
-import { getContentType } from "../../utils/getContentType";
 import { Container } from "../_shared/Container";
-import LinhaLembranca from "../TableRows/MementoRow";
+import MementoRow from "../TableRows/MementoRow";
 
 const Header = styled.div`
   display: flex;
@@ -133,27 +131,30 @@ class Patient extends Component {
         <Table striped bordered hover>
           <thead>
             <tr>
-              <th scope="col">descrição</th>
-              <th scope="col">data</th>
+              <th scope="col">Lembrança</th>
+              <th scope="col">Descrição</th>
+              <th scope="col">Data</th>
             </tr>
           </thead>
           <tbody>
             {mementos.map((row, index) => {
-              const { desc, path, data, type } = row;
-              const objectRow = Object.assign({}, { desc, path, data, type });
-              return <LinhaLembranca key={index} lembraca={objectRow} />;
+              return <MementoRow key={index} {...row} />;
             })}
           </tbody>
         </Table>
-
-        {this.state.uploading ? (
-          <Loader type="Puff" color="#00BFFF" height={100} width={100} />
-        ) : (
-          <Modal show={this.state.show} onHide={this.handleClose}>
-            <Modal.Header closeButton>
-              <Modal.Title>Upload de lembraça</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
+        <Modal
+          show={this.state.show}
+          onHide={this.handleClose}
+          backdrop="static"
+          keyboard={false}
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Upload de lembraça</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {this.state.uploading ? (
+              <Loader type="Puff" color="#00BFFF" height={100} width={100} />
+            ) : (
               <Form onSubmit={this.handleSubmit}>
                 <FormGroup>
                   <FormControl
@@ -196,9 +197,9 @@ class Patient extends Component {
                   Upload
                 </Button>
               </Form>
-            </Modal.Body>
-          </Modal>
-        )}
+            )}
+          </Modal.Body>
+        </Modal>
       </Container>
     );
   }
@@ -210,7 +211,7 @@ class Patient extends Component {
     );
 
     this.setState({
-      patient: getSnapshot(patient),
+      patient: patient ? getSnapshot(patient) : undefined,
     });
   }
 }

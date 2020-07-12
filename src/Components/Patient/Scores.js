@@ -1,9 +1,19 @@
+import { inject, observer } from "mobx-react";
+import { getSnapshot } from "mobx-state-tree";
 import React, { Component } from "react";
-import { Container, Table } from "react-bootstrap";
+import { Table } from "react-bootstrap";
 import { withRouter } from "react-router";
+import styled from "styled-components";
 
-import { database } from "../../services/firebase";
+import { Container } from "../_shared/Container";
 import LinhaScore from "../TableRows/ScoreRow";
+
+const Header = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+`;
 
 class Score extends Component {
   constructor(props) {
@@ -11,19 +21,23 @@ class Score extends Component {
 
     this.state = {
       jogos: [],
+      patient: undefined,
     };
   }
 
   render() {
-    const { nome } = this.props.location.state.paciente;
+    if (!this.state.patient) return null;
+
+    const { name } = this.state.patient;
 
     return (
       <Container>
+        <Header>
+          <h1>Scores de {name}</h1>
+        </Header>
         <Table>
           <thead>
-            <tr>
-              <th scope="col">{nome}</th>
-            </tr>
+            <tr></tr>
           </thead>
           <tbody>
             {this.state.jogos.map((row, index) => {
@@ -36,31 +50,15 @@ class Score extends Component {
   }
 
   componentDidMount() {
-    const { key } = this.props.location.state.paciente;
+    const id = this.props.match.params.id;
+    const patient = this.props.store.userStore.user.patients.find(
+      (userPatient) => userPatient.id === id
+    );
 
-    // Populates the store with the lembrancas allready uploaded to this paciente
-    database
-      .ref("pacientes/" + key)
-      .once("value")
-      .then((snapshot) => {
-        const { jogos } = snapshot.val();
-
-        if (jogos) {
-          const arrayJogos = Object.entries(jogos);
-          const jogosInfos = [];
-
-          for (const j of arrayJogos) {
-            const infos = j[1];
-
-            jogosInfos.push(infos);
-          }
-
-          this.setState({
-            jogos: jogosInfos,
-          });
-        }
-      });
+    this.setState({
+      patient: patient ? getSnapshot(patient) : undefined,
+    });
   }
 }
 
-export default withRouter(Score);
+export default withRouter(inject("store")(observer(Score)));
