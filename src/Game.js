@@ -1,3 +1,4 @@
+import chunck from "lodash/chunk";
 import shuffle from "lodash/shuffle";
 import { inject, observer } from "mobx-react";
 import { getSnapshot } from "mobx-state-tree";
@@ -155,19 +156,19 @@ class Game extends Component {
     const gameSpecs = {};
     const { name, cpf } = patient;
 
+    const mementos = getSnapshot(patient.mementos);
+
+    let shuffledMementos = shuffle(mementos);
+    // Make sure that the memento do not pass 5
+    if (shuffledMementos.length > 5) {
+      [shuffledMementos] = chunck(shuffledMementos, 5);
+    }
+
     Object.assign(gameSpecs, {
       nome: name,
       cpf,
-      size: patient.mementos.length - 1,
+      size: shuffledMementos.length - 1,
     });
-
-    const mementos = getSnapshot(patient.mementos);
-
-    const shuffledMementos = shuffle(mementos);
-    // Make sure that the memento do not pass 5
-    if (shuffledMementos.length > 5) {
-      shuffledMementos.splice(0, shuffledMementos.length - 5);
-    }
 
     for (const [
       index,
