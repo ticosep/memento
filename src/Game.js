@@ -4,7 +4,7 @@ import { getSnapshot } from "mobx-state-tree";
 import moment from "moment";
 import React, { Component } from "react";
 import Loader from "react-loader-spinner";
-import { withRouter } from "react-router";
+import { Redirect, withRouter } from "react-router";
 
 import { getScore } from "./utils/getScores";
 
@@ -31,6 +31,7 @@ class Game extends Component {
       ready: false,
       gameSpecs: undefined,
       initGame: Date.now(),
+      done: false,
     };
   }
 
@@ -40,7 +41,6 @@ class Game extends Component {
     const { ready, gameSpecs } = this.state;
     const store = this.props.store.userStore;
     const id = this.props.match.params.id;
-    const { history } = this.props;
 
     // Here we need to check if the fnName is that one, it secure that the game is allreadt loaded and the data for it is done
     if (fnName === "returnJson" && ready) {
@@ -80,10 +80,10 @@ class Game extends Component {
 
         await store.addScore(id, gameScore);
       } else {
-        alert("Jogo nao salvo nos scores!");
+        alert("Jogo não salvo nos scores!");
       }
 
-      history.replace(`${store.user.type}`);
+      this.setState({ done: true });
     }
   };
 
@@ -97,6 +97,10 @@ class Game extends Component {
 
   render() {
     const { ready } = this.state;
+
+    if (this.state.done) {
+      return <Redirect to="/" />;
+    }
 
     if (!this.state.gameSpecs)
       return (
