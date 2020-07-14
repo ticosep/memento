@@ -6,7 +6,7 @@ import { withRouter } from "react-router";
 import styled from "styled-components";
 
 import { Container } from "../_shared/Container";
-import LinhaScore from "../TableRows/ScoreRow";
+import ScoreRow from "../TableRows/ScoreRow";
 
 const Header = styled.div`
   display: flex;
@@ -35,13 +35,18 @@ class Score extends Component {
         <Header>
           <h1>Scores de {name}</h1>
         </Header>
-        <Table>
+        <Table striped bordered hover>
           <thead>
-            <tr></tr>
+            <tr>
+              <th scope="col">Acertos</th>
+              <th scope="col">Numero de lembranças</th>
+              <th scope="col">Tempo de jogo (mm:ss)</th>
+              <th scope="col">Data do jogo</th>
+            </tr>
           </thead>
           <tbody>
-            {this.state.jogos.map((row, index) => {
-              return <LinhaScore key={index} jogos={row} />;
+            {this.state.patient.scores.map((score, index) => {
+              return <ScoreRow key={index} {...score} />;
             })}
           </tbody>
         </Table>

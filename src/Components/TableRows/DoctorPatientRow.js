@@ -1,3 +1,4 @@
+import moment from "moment";
 import React, { Component } from "react";
 import { Button } from "react-bootstrap";
 import { withRouter } from "react-router";
@@ -15,9 +16,11 @@ class LinhaPacienteMedico extends Component {
     return (
       <tr>
         <td>{this.props.name}</td>
-        <td>{this.props.weight}</td>
+        <td>{this.props.weight}Kg</td>
         <td>{this.props.cpf}</td>
-        <td>{this.props.birthday}</td>
+        <td>
+          {moment(this.props.birthday, "YYYY-MM-DD").format("DD/MM/YYYY")}
+        </td>
         <td>
           <Button
             id="paciente"

@@ -6,6 +6,22 @@ import { getContentType } from "../utils/getContentType";
 
 const STORAGE_KEY_TOKEN = "token";
 
+// const GameObject = types.model({
+//   desc: types.maybe(types.string),
+//   data: types.maybe(types.string),
+//   dataSelecionada: types.maybe(types.string),
+//   gapCorreto: types.maybe(types.number),
+//   gapSelecionado: types.maybe(types.number),
+// });
+
+const Games = types.model({
+  gameTime: types.maybe(types.string),
+  data: types.maybe(types.string),
+  dataSelecionada: types.maybe(types.string),
+  numOfMementos: types.maybe(types.number),
+  score: types.maybe(types.number),
+});
+
 const Memento = types.model({
   desc: types.maybe(types.string),
   data: types.maybe(types.string),
@@ -20,7 +36,7 @@ const Patient = types.model({
   birthday: types.maybe(types.string),
   cpf: types.maybe(types.string),
   weight: types.maybe(types.string),
-  scores: types.maybe(types.string),
+  scores: types.array(types.optional(Games, {})),
   mementos: types.array(types.optional(Memento, {})),
 });
 
@@ -68,11 +84,13 @@ const UserStore = types
             const mementos = value.mementos
               ? Object.values(value.mementos)
               : [];
+            const scores = value.scores ? Object.values(value.scores) : [];
+            console.log(scores);
             const patient = Object.assign(
               {},
               { ...value },
               { id: key },
-              { mementos }
+              { mementos, scores }
             );
             return patient;
           });
@@ -124,7 +142,19 @@ const UserStore = types
       }
     });
 
-    return { fetchUser, addMemento };
+    const addScore = flow(function* (id, gameData) {
+      try {
+        yield database.ref("pacientes/" + id + "/scores").push(gameData);
+
+        const patient = self.user.patients.find((patient) => patient.id === id);
+
+        patient.scores.push(gameData);
+      } catch (error) {
+        console.error(error.message);
+      }
+    });
+
+    return { fetchUser, addMemento, addScore };
   })
 
   .actions((self) => {

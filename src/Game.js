@@ -1,9 +1,24 @@
+import shuffle from "lodash/shuffle";
+import { inject, observer } from "mobx-react";
+import { getSnapshot } from "mobx-state-tree";
+import moment from "moment";
 import React, { Component } from "react";
 import Loader from "react-loader-spinner";
 import { withRouter } from "react-router";
 
-import { database, storageRef } from "./services/firebase";
-import { getDate } from "./utils/getDate";
+import { getScore } from "./utils/getScores";
+
+const millisecondsToMinutesSeconds = (ms) => {
+  let duration = moment.duration(ms, "milliseconds");
+  let fromMinutes = Math.floor(duration.asMinutes());
+  let fromSeconds = Math.floor(duration.asSeconds() - fromMinutes * 60);
+
+  return Math.floor(duration.asSeconds()) >= 60
+    ? (fromMinutes <= 9 ? "0" + fromMinutes : fromMinutes) +
+        ":" +
+        (fromSeconds <= 9 ? "0" + fromSeconds : fromSeconds)
+    : "00:" + (fromSeconds <= 9 ? "0" + fromSeconds : fromSeconds);
+};
 
 let viewWidth = window.innerWidth;
 let viewHeight = window.innerHeight;
@@ -14,14 +29,17 @@ class Game extends Component {
 
     this.state = {
       ready: false,
-      gameSpecs: {},
+      gameSpecs: undefined,
+      initGame: Date.now(),
     };
   }
 
   // Handle called after a message from the iframe (game)
-  handleFrameTasks = (e) => {
+  handleFrameTasks = async (e) => {
     const { fnName } = e.data;
     const { ready, gameSpecs } = this.state;
+    const store = this.props.store.userStore;
+    const id = this.props.match.params.id;
     const { history } = this.props;
 
     // Here we need to check if the fnName is that one, it secure that the game is allreadt loaded and the data for it is done
@@ -43,18 +61,29 @@ class Game extends Component {
       const [jsonData] = data.params;
 
       const gameData = JSON.parse(jsonData);
-      const date = getDate();
-      const { key } = this.props.location.state.paciente;
+      if (window.confirm("Jogo finalizado, deseja salvar os dados?")) {
+        const arrayData = Object.values(gameData);
+        let score = 0;
 
-      database
-        .ref("pacientes/" + key + "/jogos")
-        .push({
-          gameData,
-        })
-        .then(() => {
-          alert("jogo salvo");
-          history.push("/Cuidador");
-        });
+        for (const data of arrayData) {
+          score += getScore(data);
+        }
+
+        const gameScore = {
+          score,
+          numOfMementos: arrayData.length,
+          data: moment().format("DD/MM/YYYY"),
+          gameTime: millisecondsToMinutesSeconds(
+            Date.now() - this.state.initGame
+          ),
+        };
+
+        await store.addScore(id, gameScore);
+      } else {
+        alert("Jogo nao salvo nos scores!");
+      }
+
+      history.replace(`${store.user.type}`);
     }
   };
 
@@ -68,10 +97,16 @@ class Game extends Component {
 
   render() {
     const { ready } = this.state;
-    let frame;
+
+    if (!this.state.gameSpecs)
+      return (
+        <div>
+          Não é possivel criar um jogo, número insufiiciente de lembranças!
+        </div>
+      );
 
     if (ready) {
-      frame = (
+      return (
         <iframe
           ref={(f) => (this.ifr = f)}
           id="game"
@@ -84,10 +119,8 @@ class Game extends Component {
     }
 
     if (!ready) {
-      frame = <Loader type="Puff" color="#00BFFF" height="100" width="100" />;
+      return <Loader type="Puff" color="#00BFFF" height={100} width={100} />;
     }
-
-    return <div>{frame}</div>;
   }
 
   // After the component update, load all the data for the game we set a listner for the ifram messages
@@ -105,56 +138,50 @@ class Game extends Component {
   }
 
   componentDidMount() {
-    const { key } = this.props.location.state.paciente;
-    database
-      .ref("pacientes/" + key)
-      .once("value")
-      .then((snapshot) => {
-        const { lembracas, nome, cpf } = snapshot.val();
-        let gameSpecs = {};
+    const id = this.props.match.params.id;
+    const patient = this.props.store.userStore.user.patients.find(
+      (userPatient) => userPatient.id === id
+    );
 
-        if (lembracas) {
-          const arrayLembrancas = Object.entries(lembracas);
-          let lembrancaCount = arrayLembrancas.length;
+    if (!patient || patient.mementos.length < 3) {
+      this.setState({ gameSpecs: undefined });
+      return;
+    }
 
-          gameSpecs = Object.assign(
-            {},
-            { nome: nome, cpf: cpf, size: lembrancaCount - 1 }
-          );
+    const gameSpecs = {};
+    const { name, cpf } = patient;
 
-          for (const [index, l] of arrayLembrancas.entries()) {
-            const { path, desc, data, type } = l[1];
+    Object.assign(gameSpecs, {
+      nome: name,
+      cpf,
+      size: patient.mementos.length - 1,
+    });
 
-            // Create a reference to the file we want to download
-            const lembrancaRef = storageRef.child(path);
+    const mementos = getSnapshot(patient.mementos);
 
-            // Get the download URL
-            lembrancaRef
-              .getDownloadURL()
-              .then((url) => {
-                const lembracaStr = `{"${index}":{"desc": "${desc}", "data": "${data}", "type": "${type}", "url": "${url}"}}`;
-                const lembracaObj = JSON.parse(lembracaStr);
+    const shuffledMementos = shuffle(mementos);
+    // Make sure that the memento do not pass 5
+    if (shuffledMementos.length > 5) {
+      shuffledMementos.splice(0, shuffledMementos.length - 5);
+    }
 
-                gameSpecs = Object.assign(gameSpecs, lembracaObj);
+    for (const [
+      index,
+      { desc, data, type, url },
+    ] of shuffledMementos.entries()) {
+      const lembracaStr = `{"${index}":{"desc": "${desc}", "data": "${data}", "type": "${type}", "url": "${url}"}}`;
+      const lembracaObj = JSON.parse(lembracaStr);
 
-                lembrancaCount--;
+      Object.assign(gameSpecs, lembracaObj);
+    }
 
-                if (!lembrancaCount) {
-                  this.setState({
-                    ready: true,
-                    gameSpecs: gameSpecs,
-                  });
+    window.addEventListener("resize", this.onWindowResize, false);
 
-                  window.addEventListener("resize", this.onWindowResize, false);
-                }
-              })
-              .catch((error) => {
-                console.log(error);
-              });
-          }
-        }
-      });
+    this.setState({
+      ready: true,
+      gameSpecs: gameSpecs,
+    });
   }
 }
 
-export default withRouter(Game);
+export default withRouter(inject("store")(observer(Game)));
