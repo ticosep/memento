@@ -1,28 +1,58 @@
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { inject, observer } from "mobx-react";
+import { getSnapshot } from "mobx-state-tree";
 import React, { Component } from "react";
-import { Button, Container, Table } from "react-bootstrap";
+import { Modal, ModalBody, ModalTitle, Table } from "react-bootstrap";
+import ModalHeader from "react-bootstrap/esm/ModalHeader";
 import { withRouter } from "react-router";
+import styled from "styled-components";
 
 import { database } from "../../services/firebase";
-import LinhaPaciente from "../TableRows/PatientRow";
+import { Container } from "../_shared/Container";
+import RegisterPatient from "../Register/RegisterPatient";
+import PatientRow from "../TableRows/PatientRow";
 
-class Cuidador extends Component {
+const Header = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+`;
+
+const Icon = styled(FontAwesomeIcon)`
+  margin-left: 1rem;
+  cursor: pointer;
+`;
+
+class CareGiver extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       rows: [],
+      show: false,
     };
   }
 
-  routeChange = () => {
-    const { history } = this.props;
-    history.push("/cadastropaciente");
+  handleClose = () => {
+    this.setState({ show: false });
+  };
+
+  handleShow = () => {
+    this.setState({ show: true });
   };
 
   render() {
+    const patients = getSnapshot(this.props.store.userStore.user.patients);
+
     return (
       <Container>
-        <Table>
+        <Header>
+          <h1>Meus pacientes</h1>
+          <Icon onClick={this.handleShow} icon={faPlus} />
+        </Header>
+        <Table striped bordered hover>
           <thead>
             <tr>
               <th scope="col">Nome</th>
@@ -34,47 +64,27 @@ class Cuidador extends Component {
             </tr>
           </thead>
           <tbody>
-            {this.state.rows.map((row, index) => {
-              return <LinhaPaciente key={index} paciente={row} />;
+            {patients.map((row, index) => {
+              return <PatientRow key={index} patient={row} {...row} />;
             })}
           </tbody>
         </Table>
-
-        <Button className="btn btn-primary" onClick={this.routeChange}>
-          Cadastrar paciente
-        </Button>
+        <Modal
+          show={this.state.show}
+          onHide={this.handleClose}
+          backdrop="static"
+          keyboard={false}
+        >
+          <ModalHeader closeButton>
+            <ModalTitle>Novo Paciente</ModalTitle>
+          </ModalHeader>
+          <ModalBody>
+            <RegisterPatient />
+          </ModalBody>
+        </Modal>
       </Container>
     );
   }
-
-  componentDidMount() {
-    const userValues = localStorage.getItem("user");
-    const userValuesObj = JSON.parse(userValues);
-    const { id } = userValuesObj;
-
-    database
-      .ref("users/" + id)
-      .once("value")
-      .then((snapshot) => {
-        const { pacientes } = snapshot.val();
-        const arrayPaci = Object.entries(pacientes);
-        const rows = [];
-
-        for (const paciente of arrayPaci) {
-          const infos = paciente[1];
-          const key = {
-            key: paciente[0],
-          };
-
-          const mergedPaciente = Object.assign(infos, key);
-          rows.push(mergedPaciente);
-        }
-
-        this.setState({
-          rows: rows,
-        });
-      });
-  }
 }
 
-export default withRouter(Cuidador);
+export default withRouter(inject("store")(observer(CareGiver)));

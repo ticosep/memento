@@ -1,50 +1,29 @@
+import moment from "moment";
 import React, { Component } from "react";
 import { Button } from "react-bootstrap";
 import { withRouter } from "react-router";
 
 // A simple line with the info about the paciente that is under the care of the user
 class LinhaPaciente extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      paciente: props.paciente,
-    };
-  }
-
   routeChange = (e) => {
     const { id } = e.target;
-    const { history, paciente } = this.props;
+    const { history, patient } = this.props;
 
-    if (id === "acessar") {
-      history.push({
-        pathname: "/paciente",
-        state: {
-          paciente,
-        },
-      });
-    }
-
-    if (id === "jogar") {
-      history.push({
-        pathname: "/jogar",
-        state: {
-          paciente,
-        },
-      });
-    }
+    history.push(`${id}/${patient.id}`);
   };
 
   render() {
     return (
       <tr>
-        <td>{this.state.paciente.nome}</td>
-        <td>{this.state.paciente.peso}</td>
-        <td>{this.state.paciente.cpf}</td>
-        <td>{this.state.paciente.data}</td>
+        <td>{this.props.name}</td>
+        <td>{this.props.weight}Kg</td>
+        <td>{this.props.cpf}</td>
+        <td>
+          {moment(this.props.birthday, "YYYY-MM-DD").format("DD/MM/YYYY")}
+        </td>
         <td>
           <Button
-            id="acessar"
+            id="paciente"
             className="btn btn-primary"
             onClick={this.routeChange}
           >

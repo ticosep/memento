@@ -6,14 +6,6 @@ import { getContentType } from "../utils/getContentType";
 
 const STORAGE_KEY_TOKEN = "token";
 
-// const GameObject = types.model({
-//   desc: types.maybe(types.string),
-//   data: types.maybe(types.string),
-//   dataSelecionada: types.maybe(types.string),
-//   gapCorreto: types.maybe(types.number),
-//   gapSelecionado: types.maybe(types.number),
-// });
-
 const Games = types.model({
   gameTime: types.maybe(types.string),
   data: types.maybe(types.string),
@@ -71,21 +63,41 @@ const UserStore = types
           .ref("users/" + self.token)
           .once("value");
 
-        const value = snapshot.val();
+        const userSnapshot = snapshot.val();
 
-        self.user = value;
+        self.user = userSnapshot;
+
+        const pacientes = yield database.ref("pacientes/").once("value");
+
+        const pacientesValues = Object.entries(pacientes.val());
+
+        if (self.user.type === "Cuidador") {
+          const careGiverPatients = pacientesValues.filter(([key]) =>
+            Object.values(userSnapshot.pacientes).some((value) => value === key)
+          );
+
+          self.user.patients = careGiverPatients.map(([key, value]) => {
+            const mementos = value.mementos
+              ? Object.values(value.mementos)
+              : [];
+
+            const patient = Object.assign(
+              {},
+              { ...value },
+              { id: key },
+              { mementos }
+            );
+            return patient;
+          });
+        }
 
         if (self.user.type === "Medico") {
-          const snapshot = yield database.ref("pacientes/").once("value");
-
-          const value = snapshot.val();
-
-          self.user.patients = Object.entries(value).map(([key, value]) => {
+          self.user.patients = pacientesValues.map(([key, value]) => {
             const mementos = value.mementos
               ? Object.values(value.mementos)
               : [];
             const scores = value.scores ? Object.values(value.scores) : [];
-            console.log(scores);
+
             const patient = Object.assign(
               {},
               { ...value },
@@ -216,11 +228,10 @@ const UserStore = types
 
         if (self.user.type === "Cuidador") {
           const key = values.key;
-          const value = { ...patient, cuidador: self.token };
           yield database
             .ref("users/" + self.token + "/pacientes")
             .child(key)
-            .set(value);
+            .set(values.key);
         }
 
         self.user.patients.push(newPatient);
