@@ -174,7 +174,10 @@ class Game extends Component {
       index,
       { desc, data, type, url },
     ] of shuffledMementos.entries()) {
-      const lembracaStr = `{"${index}":{"desc": "${desc}", "data": "${data}", "type": "${type}", "url": "${url}"}}`;
+      const lembracaStr = `{"${index}":{"desc": "${desc}", "data": "${moment(
+        data,
+        "YYYY-MM-DD"
+      ).format("DD/MM/YYYY")}", "type": "${type}", "url": "${url}"}}`;
       const lembracaObj = JSON.parse(lembracaStr);
 
       Object.assign(gameSpecs, lembracaObj);
