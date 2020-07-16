@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "react-bootstrap";
 import Loader from "react-loader-spinner";
+import { useLocation } from "react-router";
 import { useWindowSize } from "react-use";
 import styled from "styled-components";
 
@@ -52,6 +53,7 @@ const Layout = ({ children }) => {
   const loading = useIsUserLoading();
   const isAuth = useIsAuthorized();
   const store = useStore();
+  const location = useLocation();
   const { width } = useWindowSize();
 
   const type = store.userStore.user ? store.userStore.user.type : null;
@@ -67,6 +69,12 @@ const Layout = ({ children }) => {
 
   if (!isAuth) {
     return <React.Fragment>{children}</React.Fragment>;
+  }
+
+  const { pathname } = location;
+
+  if (pathname.includes("jogar")) {
+    return <>{children}</>;
   }
 
   return (
