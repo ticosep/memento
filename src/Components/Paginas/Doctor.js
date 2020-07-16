@@ -47,6 +47,10 @@ class Doctor extends Component {
   render() {
     const patients = getSnapshot(this.props.store.userStore.user.patients);
 
+    if (this.props.store.userStore.user.type !== "Medico") {
+      return <div>Você não pode entrar aqui!</div>;
+    }
+
     return (
       <Container>
         <Header>

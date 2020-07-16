@@ -79,6 +79,7 @@ const Register = () => {
               name="email"
               placeholder="name@example.com"
               ref={register}
+              required={true}
             ></FormControl>
           </FormGroup>
           <FormGroup>
@@ -89,6 +90,7 @@ const Register = () => {
               name="password"
               placeholder="senha"
               ref={register}
+              required={true}
             ></FormControl>
           </FormGroup>
           <FormGroup>
@@ -99,6 +101,7 @@ const Register = () => {
               name="name"
               placeholder="Nome"
               ref={register}
+              required={true}
             ></FormControl>
           </FormGroup>
           <FormGroup>
@@ -109,6 +112,7 @@ const Register = () => {
               name="cpf"
               placeholder="CPF"
               ref={register}
+              required={true}
             ></FormControl>
           </FormGroup>
           <FormGroup>
@@ -119,6 +123,7 @@ const Register = () => {
               name="birthday"
               placeholder="Data nascimento"
               ref={register}
+              required={true}
             ></FormControl>
           </FormGroup>
           <FormGroup>
@@ -128,6 +133,7 @@ const Register = () => {
               id="type"
               name="type"
               ref={register}
+              required={true}
               defaultValue="Medico"
             >
               <option>Medico</option>
