@@ -6,8 +6,6 @@ import { useIsAuthorized } from "../stores/hooks/useStore";
 const PrivateRoute = ({ component: Component, ...rest }) => {
   const isAuthorized = useIsAuthorized();
 
-  console.log(isAuthorized);
-
   return (
     <Route
       {...rest}

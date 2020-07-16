@@ -1,6 +1,7 @@
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { observer } from "mobx-react";
+import { getSnapshot } from "mobx-state-tree";
 import React from "react";
 import {
   Button,
@@ -10,7 +11,9 @@ import {
   Modal,
   Table,
 } from "react-bootstrap";
+import { useForm } from "react-hook-form";
 import Loader from "react-loader-spinner";
+import { useParams } from "react-router";
 import styled from "styled-components";
 
 import { useStore } from "../../stores/hooks/useStore";
@@ -32,13 +35,24 @@ const Icon = styled(FontAwesomeIcon)`
 const Patient = () => {
   const [show, setShow] = React.useState(false);
   const [uploading, setUploading] = React.useState(false);
-  const [currentPatient, setcurrentPatient] = React.useState(undefined);
+  const [patient, setPatient] = React.useState(undefined);
 
+  const { handleSubmit, register } = useForm();
   const store = useStore();
+  const { id } = useParams();
 
-  const handleSubmit = async (formvalues) => {
+  React.useEffect(() => {
+    const patient = getSnapshot(
+      store.userStore.user.patients.find((patient) => patient.id === id)
+    );
+
+    setPatient(patient);
+  }, []);
+
+  const onSubmit = async (formvalues) => {
     const { id } = patient;
-    const { desc, data, file } = formvalues;
+    const { desc, data } = formvalues;
+    const file = formvalues.file[0];
 
     if (!desc || !file || !data) {
       alert("Todos os campos devem estar preenchidos!");
@@ -60,7 +74,6 @@ const Patient = () => {
 
       await store.userStore.addMemento(id, memento, desc, file, data, type);
 
-      // Hide the modal and the spinner, the upload is done
       setShow(false);
       setUploading(false);
     } catch (error) {
@@ -68,18 +81,8 @@ const Patient = () => {
     }
   };
 
-  const handleControl = (e) => {
-    const { value, id } = e.target;
-    this.setState({ [id]: value });
-  };
+  if (!patient) return <div>Paciente nao encontrado</div>;
 
-  const handleFile = (e) => {
-    const file = e.target.files[0];
-
-    if (file) {
-      this.setState({ file: file });
-    }
-  };
   return (
     <Container>
       <Header>
@@ -95,7 +98,7 @@ const Patient = () => {
           </tr>
         </thead>
         <tbody>
-          {currentPatient.mementos.map((row, index) => {
+          {patient.mementos.map((row, index) => {
             return <MementoRow key={index} {...row} />;
           })}
         </tbody>
@@ -113,14 +116,13 @@ const Patient = () => {
           {uploading ? (
             <Loader type="Puff" color="#00BFFF" height={100} width={100} />
           ) : (
-            <Form onSubmit={handleSubmit}>
+            <Form onSubmit={handleSubmit(onSubmit)}>
               <FormGroup>
                 <FormControl
                   type="text"
-                  id="desc"
+                  name="desc"
                   placeholder="Decrição da lembraça"
-                  onChange={handleControl}
-                  onClick={handleControl}
+                  ref={register}
                   required={true}
                 />
               </FormGroup>
@@ -128,10 +130,9 @@ const Patient = () => {
               <FormGroup>
                 <FormControl
                   type="date"
-                  id="data"
+                  name="data"
                   placeholder="Data de ocorrencia"
-                  onChange={handleControl}
-                  onClick={handleControl}
+                  ref={register}
                   required={true}
                 />
               </FormGroup>
@@ -139,15 +140,14 @@ const Patient = () => {
               <FormGroup>
                 <FormControl
                   type="file"
-                  id="file"
+                  name="file"
                   placeholder="Selecione a lembrança"
-                  onChange={handleFile}
-                  onClick={handleFile}
+                  ref={register}
                   required={true}
                 />
               </FormGroup>
 
-              <Button type="submit" variant="primary" onClick={handleSubmit}>
+              <Button type="submit" variant="primary">
                 Upload
               </Button>
             </Form>

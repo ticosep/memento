@@ -1,3 +1,4 @@
+import moment from "moment";
 import React from "react";
 import styled from "styled-components";
 
@@ -29,7 +30,7 @@ const MementoRow = ({ type, data, desc, url }) => {
     <tr>
       <td>{preview}</td>
       <td>{desc}</td>
-      <td>{data}</td>
+      <td>{moment(data, "YYYY-MM-DD").format("DD/MM/YYYY")}</td>
     </tr>
   );
 };
