@@ -3,5 +3,7 @@ export function getContentType(str) {
   const regex = /image|video?/gi;
   const [match] = str.match(regex);
 
-  return match;
+  if (match.includes("video")) return "video";
+
+  return "image";
 }
