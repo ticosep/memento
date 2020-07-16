@@ -1,11 +1,11 @@
 import React from "react";
 import { Button } from "react-bootstrap";
 import Loader from "react-loader-spinner";
+import { useWindowSize } from "react-use";
 import styled from "styled-components";
 
 import ButtonLink from "../Components/_shared/ButtonLink";
 import { Container } from "../Components/_shared/Container";
-import Logo from "../Components/Logo";
 import {
   useIsAuthorized,
   useIsUserLoading,
@@ -52,9 +52,16 @@ const Layout = ({ children }) => {
   const loading = useIsUserLoading();
   const isAuth = useIsAuthorized();
   const store = useStore();
+  const { width, height } = useWindowSize();
+
+  console.log(width, height);
 
   const type = store.userStore.user ? store.userStore.user.type : null;
   const name = store.userStore.user ? store.userStore.user.name : null;
+
+  if (width < 768 || height < 720) {
+    return <div>Dimesões inferiores a suportada! </div>;
+  }
 
   if (loading) {
     return <Loader type="Puff" color="#00BFFF" height={100} width={100} />;
