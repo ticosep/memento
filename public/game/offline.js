@@ -1,9 +1,9 @@
 ﻿{
-	"version": 1578079871,
+	"version": 1594930968,
 	"fileList": [
 		"data.js",
 		"c2runtime.js",
-		"jquery-2.1.1.min.js",
+		"jquery-3.4.1.min.js",
 		"offlineClient.js",
 		"images/lembranca-sheet0.png",
 		"images/lembranca-sheet1.png",

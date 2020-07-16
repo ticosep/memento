@@ -116,7 +116,7 @@ class Game extends Component {
           ref={(f) => (this.ifr = f)}
           id="game"
           title="game"
-          src="../game/"
+          src="./game"
           width={viewWidth}
           height={viewHeight}
         ></iframe>
