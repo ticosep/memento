@@ -5,6 +5,7 @@ import styled from "styled-components";
 
 import ButtonLink from "../Components/_shared/ButtonLink";
 import { Container } from "../Components/_shared/Container";
+import Logo from "../Components/Logo";
 import {
   useIsAuthorized,
   useIsUserLoading,

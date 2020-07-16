@@ -12,6 +12,7 @@
     "@react-firebase/auth": "^0.2.10",
     "@svgr/webpack": "^4.3.3",
     "bootstrap": "^4.4.1",
+    "dotenv": "^8.2.0",
     "firebase": "^5.11.1",
     "lodash": "^4.17.19",
     "mobx": "^5.15.4",

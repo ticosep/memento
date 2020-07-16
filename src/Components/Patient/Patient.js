@@ -50,7 +50,6 @@ const Patient = () => {
   }, []);
 
   const onSubmit = async (formvalues) => {
-    const { id } = patient;
     const { desc, data } = formvalues;
     const file = formvalues.file[0];
 
@@ -73,6 +72,12 @@ const Patient = () => {
       };
 
       await store.userStore.addMemento(id, memento, desc, file, data, type);
+
+      const patient = getSnapshot(
+        store.userStore.user.patients.find((patient) => patient.id === id)
+      );
+
+      setPatient(patient);
 
       setShow(false);
       setUploading(false);
@@ -109,8 +114,8 @@ const Patient = () => {
         backdrop="static"
         keyboard={false}
       >
-        <Modal.Header closeButton>
-          <Modal.Title>Upload de lembraça</Modal.Title>
+        <Modal.Header closeButton={!uploading}>
+          <Modal.Title>Envio de lembraça</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {uploading ? (
@@ -118,6 +123,7 @@ const Patient = () => {
           ) : (
             <Form onSubmit={handleSubmit(onSubmit)}>
               <FormGroup>
+                <Form.Label>Descrição</Form.Label>
                 <FormControl
                   type="text"
                   name="desc"
@@ -128,6 +134,7 @@ const Patient = () => {
               </FormGroup>
 
               <FormGroup>
+                <Form.Label>Data da lembrança</Form.Label>
                 <FormControl
                   type="date"
                   name="data"
@@ -138,9 +145,11 @@ const Patient = () => {
               </FormGroup>
 
               <FormGroup>
+                <Form.Label>Arquivo da lembrança (video ou imagem)</Form.Label>
                 <FormControl
                   type="file"
                   name="file"
+                  accept=".mp4,.avi,.png,.jpeg"
                   placeholder="Selecione a lembrança"
                   ref={register}
                   required={true}
@@ -148,7 +157,7 @@ const Patient = () => {
               </FormGroup>
 
               <Button type="submit" variant="primary">
-                Upload
+                Enviar
               </Button>
             </Form>
           )}

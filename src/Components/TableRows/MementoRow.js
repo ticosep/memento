@@ -18,12 +18,13 @@ const PriviewVideo = styled.video`
 
 const MementoRow = ({ type, data, desc, url }) => {
   let preview;
+  console.log(type);
 
-  if (type === "img") {
+  if (type.includes("image")) {
     preview = <PreviewImg src={url} alt="lembrança" />;
   }
 
-  if (type === "video") {
+  if (type.includes("video")) {
     preview = <PriviewVideo controls src={url} />;
   }
   return (

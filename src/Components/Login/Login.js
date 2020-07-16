@@ -6,6 +6,7 @@ import { Redirect, withRouter } from "react-router";
 import styled from "styled-components";
 
 import { Container } from "../_shared/Container";
+import Logo from "../Logo";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -13,10 +14,12 @@ const Wrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+
+  flex-direction: column;
 `;
 
 const StyledForm = styled(Form)`
-  min-width: 300px;
+  min-width: 500px;
   padding: 1rem;
 
   display: flex;
@@ -89,6 +92,7 @@ class Login extends Component {
       <Container>
         <Wrapper>
           <StyledForm onSubmit={this.handleSubmit} id="login">
+            <Logo />
             <Form.Group controlId="email">
               <Form.Label>Email</Form.Label>
               <Form.Control

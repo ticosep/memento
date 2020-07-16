@@ -148,6 +148,7 @@ const UserStore = types
         });
 
         const patient = self.user.patients.find((patient) => patient.id === id);
+
         patient.mementos.push({ desc, path, data, type, url });
       } catch (error) {
         console.error(error.message);

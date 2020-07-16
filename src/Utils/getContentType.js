@@ -1,19 +1,7 @@
-export function getContentType (str) {
-    
-    let tipo;
+export function getContentType(str) {
+  // Regex to find what is the content to be showed
+  const regex = /image|video?/gi;
+  const [match] = str.match(regex);
 
-    // Regex to find what is the content to be showed
-    const regex = /image|video?/gi;
-    const [match] = str.match(regex)
-
-    if(match === 'image'){
-        tipo = 'img'
-
-    }
-
-    if(match === 'video'){
-        tipo = 'video'
-    }
-
-    return tipo;
+  return match;
 }

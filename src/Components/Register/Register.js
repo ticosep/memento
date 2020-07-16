@@ -9,6 +9,7 @@ import styled from "styled-components";
 
 import { app, database } from "../../services/firebase";
 import { Container } from "../_shared/Container";
+import Logo from "../Logo";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -19,7 +20,7 @@ const Wrapper = styled.div`
 `;
 
 const StyledForm = styled(Form)`
-  min-width: 300px;
+  min-width: 500px;
   padding: 1rem;
 
   display: flex;
@@ -70,6 +71,7 @@ const Register = () => {
     <Container>
       <Wrapper>
         <StyledForm onSubmit={handleSubmit(onSubmit)}>
+          <Logo />
           <FormGroup>
             <Form.Label>Email</Form.Label>
             <FormControl
