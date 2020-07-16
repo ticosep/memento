@@ -52,14 +52,12 @@ const Layout = ({ children }) => {
   const loading = useIsUserLoading();
   const isAuth = useIsAuthorized();
   const store = useStore();
-  const { width, height } = useWindowSize();
-
-  console.log(width, height);
+  const { width } = useWindowSize();
 
   const type = store.userStore.user ? store.userStore.user.type : null;
   const name = store.userStore.user ? store.userStore.user.name : null;
 
-  if (width < 768 || height < 720) {
+  if (width < 768) {
     return <div>Dimesões inferiores a suportada! </div>;
   }
 
